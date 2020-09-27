@@ -39,9 +39,16 @@ def load_data(file_name):
         data = list(map(keep_number, f))
     return numpy.array(data)
 
+def show_file(file_name):
+    data = load_data(file_name)
+    to_show = [('Min', 'Avg', 'Max', 'std'), 
+                (min(data), numpy.average(data), max(data), numpy.std(data))]
+    print(file_name)                
+    print('-' * len(file_name))
+    pretty_show(to_show)
+    print('\n')
 
 if '__main__' == __name__:
-    data = load_data(sys.argv[1])
-    to_show = [('Min', 'Avg', 'Max', 'std'), (min(data), numpy.average(data),
-                                              max(data), numpy.std(data))]
-    pretty_show(to_show)
+    for a_file in sys.argv[1:]:
+        show_file(a_file)
+
