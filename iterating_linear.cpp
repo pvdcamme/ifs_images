@@ -95,11 +95,16 @@ struct TransformGroup {
 
     MultiPoint<__v4sf> move(MultiPoint<__v4sf>& p) const {
         size_t rr = random();
+        size_t idx0 = (rr /pow<0>(transform_count)) % transform_count;
+        size_t idx1 = (rr /pow<1>(transform_count)) % transform_count;
+        size_t idx2 = (rr /pow<2>(transform_count)) % transform_count;
+        size_t idx3 = (rr /pow<3>(transform_count)) % transform_count;
+
         return Linear::move(p,
-                    transforms[(rr /pow<0>(transform_count)) % transform_count],
-                    transforms[(rr /pow<1>(transform_count)) % transform_count],
-                    transforms[(rr /pow<2>(transform_count)) % transform_count],
-                    transforms[(rr /pow<3>(transform_count)) % transform_count]);
+                    transforms[idx0],
+                    transforms[idx0],
+                    transforms[idx0],
+                    transforms[idx0]);
     }
 };
 
