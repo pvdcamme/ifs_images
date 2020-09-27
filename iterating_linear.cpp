@@ -48,9 +48,19 @@ struct Linear {
         d(normal()), e(normal()), f(normal())
     { }
 
-    struct Point move(struct Point& p) {
+    Point move(Point& p) const{
         return Point(a* p.x + b * p.y + c,
                      d* p.x + e* p.y + f);
+    }
+};
+
+template<size_t transform_count>
+struct TransformGroup{
+    Linear transforms[transform_count];
+
+    Point move(Point& p) const{
+            size_t idx = random() % transform_count;
+            return transforms[idx].move(p);
     }
 };
 
@@ -78,7 +88,7 @@ int main(int argc, char** argv) {
 
     World<1024> w;
     const size_t transform_count= 16;
-    Linear transforms[transform_count];
+    TransformGroup<16> transforms;
 
 
     auto start_program= std::chrono::steady_clock::now();
@@ -89,8 +99,7 @@ int main(int argc, char** argv) {
         Point p(0,0);
 
         for(size_t point_ctr(0); point_ctr < 100000; ++point_ctr) {
-            size_t idx = random() % transform_count;
-            p = transforms[idx].move(p);
+            p = transforms.move(p);
             w.mark(p);
         }
     }
