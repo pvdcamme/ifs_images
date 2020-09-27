@@ -23,6 +23,11 @@
    Normally the result file is saved to 'result.txt'. This
    name can be changed with the first command argument.
 
+   @detail.
+   Most small values are passed by-value rather then by reference.
+   This gives us nice-pure functions that are easy to reason 
+   about. Benchmarking has shown no performance degradation.
+
 */
 #include <iostream>
 #include <string>
@@ -56,7 +61,11 @@ struct Linear {
         return Point(a* p.x + b * p.y + c,
                      d* p.x + e* p.y + f);
     }
-    static MultiPoint<__v4sf> move(MultiPoint<__v4sf>& pp,
+    
+    /* Performs multiple transforms simultaneously.
+     * Offers a nice speedup, despite the gathering.
+     */
+    static MultiPoint<__v4sf> move(MultiPoint<__v4sf> pp,
                 const Linear& l1,
                 const Linear& l2,
                 const Linear& l3,
@@ -76,6 +85,9 @@ struct Linear {
     }
 };
 
+// A fast power operation.
+// Delegates much to the compiler, use 
+// only for small exponents.
 template<size_t exp>
 size_t pow(size_t val){
     return val * pow<exp -1>(val);
@@ -86,6 +98,10 @@ size_t pow<0>(size_t val){
     return 1;
 }
 
+/**
+  * Groups several transforms together.
+  * Makes it easy to pick a random one each time.
+  */
 template<size_t transform_count>
 struct TransformGroup {
     Linear transforms[transform_count];
