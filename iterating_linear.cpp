@@ -1,3 +1,27 @@
+/**  
+   A small program that generates images using
+   an iterating system.
+
+   The basis is a number of linear transforms.
+   These are applied in random order while 
+   the density of the results are saved.
+   
+   Some regions have much higher chance
+   than others.
+
+   The reuslt of this program is text file with
+   a 2D matrix with counts. This file has the folloing 
+   format:
+     line 1: <size>
+     line 2: <first row, <size> values seperated by commas>
+     ..   <size> + 1: last row
+
+   The post_process.py script can process this file to
+   a pretty immage.
+
+   Normally the result file is saved to 'result.txt'. This
+   name can be changed with the first command argument.
+*/
 #include <iostream>
 #include <stdlib.h>
 #include <cstdint>
@@ -84,7 +108,12 @@ struct World{
     }
 };
 
-int main(){
+int main(int argc, char** argv){
+    std::string target_name("result.txt");
+    if(argc > 1){
+        target_name = argv[1];
+    }
+
     World<1024> w;
     const size_t transform_count= 16;
     Linear transforms[transform_count];
@@ -98,5 +127,5 @@ int main(){
             w.mark(p);
         }
     }
-    w.save("test.txt");
+    w.save(target_name.c_str());
 }
