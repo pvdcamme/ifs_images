@@ -4,12 +4,13 @@
 
    The basis is a number of linear transforms.
    These are applied in random order while 
-   the density of the results are saved.
-   
-   Some regions have much higher chance
-   than others.
+   the density of the results are saved. Some 
+   regions have much higher chance than others.
 
-   The reuslt of this program is text file with
+   The program iterates for about 2 seconds 
+   before saving the image.
+
+   The result of this program is text file with
    a 2D matrix with counts. This file has the folloing 
    format:
      line 1: <size>
@@ -21,10 +22,12 @@
 
    Normally the result file is saved to 'result.txt'. This
    name can be changed with the first command argument.
+
 */
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 #include <cstdlib>
 #include <cstdint>
@@ -110,17 +113,27 @@ struct World{
     }
 };
 
+template<typename clock>
+double time_passed(std::chrono::time_point<clock> start){
+    auto now = clock::now();
+    std::chrono::duration<double> elapsed = now - start;
+    return elapsed.count();
+}
+
 int main(int argc, char** argv){
     std::string target_name("result.txt");
     if(argc > 1){
         target_name = argv[1];
-    }
+   }
 
     World<1024> w;
     const size_t transform_count= 16;
     Linear transforms[transform_count];
 
-    for(size_t loop_ctr(0); loop_ctr < 1000; ++loop_ctr){
+    auto start_program= std::chrono::steady_clock::now();
+    size_t loop_ctr(0);
+    while(time_passed(start_program) < 2){
+        loop_ctr++;
         Point p(0,0);
 
         for(size_t point_ctr(0); point_ctr < 100000; ++point_ctr){
@@ -129,5 +142,6 @@ int main(int argc, char** argv){
             w.mark(p);
         }
     }
+    std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
     w.save(target_name.c_str());
 }
