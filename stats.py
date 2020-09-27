@@ -1,5 +1,13 @@
 """
     Prints statistics from the numbers of the input file
+
+    Sample program run:
+
+    $ python stats.py <txt file>
+     >  Min        |       Avg        |       Max        |       std        
+     > 333.762      |    368.703525    |     421.656      |18.094423788818894
+
+
 """
 import numpy
 import sys
