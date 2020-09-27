@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <immintrin.h>
 
 #include <cstdint>
 
@@ -12,9 +13,7 @@
 // World from -1 to 1
 template<size_t size>
 struct World {
-    uint8_t* data;
-    uint32_t* full_data;
-
+public:
     World():
         data(new uint8_t[size * size]),
         full_data(new uint32_t[size * size])
@@ -29,15 +28,29 @@ struct World {
         delete[] data;
     }
 
-    void dump() {
-        for(size_t ctr(0); ctr < size * size; ++ ctr) {
-            full_data[ctr] += data[ctr];
-            data[ctr] = 0;
+    void mark(MultiPoint<__v4sf> p){
+        __v4sf res_x = (p.x + 1.f) * (0.5f * size);
+        __v4sf res_y = (p.y + 1.f) * (0.5f * size);
+
+        __v4si ix = __builtin_ia32_cvtps2dq(res_x);
+        __v4si iy = __builtin_ia32_cvtps2dq(res_y);
+        __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size));
+
+        __v4si idx = good & (ix + int32_t(size) * iy);
+
+        data[0] = 0;
+        bool needs_to_dump= false;
+        for(size_t ctr(0); ctr < 4; ++ctr){
+            int32_t pos = idx[ctr];
+            needs_to_dump = (250 < data[pos]++);
+        }
+        if(needs_to_dump){
+            dump();
         }
     }
 
 
-    void mark(struct Point& p) {
+    void mark(struct Point p) {
         size_t ix = ((p.x + 1) * 0.5) * size;
         size_t iy = ((p.y + 1) * 0.5) * size;
         if (ix < size && iy < size) {
@@ -61,6 +74,28 @@ struct World {
             out << std::endl;
         }
     }
+pivate:    
+    /** 
+        The data is stored into two arrays.
+         1. A small memory footprint to minimize
+            cache misses. This type will overflow.
+
+         2. A large memory one for all the data.
+            This one should never overflow.
+         
+         When the first type is close to overflow
+         it should be dumped into the larger one.
+     */
+    uint8_t* data;
+    uint32_t* full_data;
+
+    void dump() {
+        for(size_t ctr(0); ctr < size * size; ++ ctr) {
+            full_data[ctr] += data[ctr];
+            data[ctr] = 0;
+        }
+    }
+
 };
 
 #endif

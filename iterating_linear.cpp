@@ -90,16 +90,17 @@ int main(int argc, char** argv) {
     const size_t transform_count= 16;
     TransformGroup<16> transforms;
 
-
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
     size_t max_runtime= 4;
     while(time_passed(start_program) < max_runtime) {
-        loop_ctr++;
-        Point p(0,0);
+        MultiPoint<__v4sf> p(0,0);
+        loop_ctr+= p.size();
 
         for(size_t point_ctr(0); point_ctr < 100000; ++point_ctr) {
-            p = transforms.move(p);
+            for(size_t idx(0); idx < p.size();++idx){
+                p[idx] = transforms.move(p[idx]);
+            }
             w.mark(p);
         }
     }
