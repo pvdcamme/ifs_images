@@ -39,6 +39,10 @@ float normal() {
     return float(2 * upper - 1);
 }
 
+/*
+ * A linear transform. Initialized with random values.
+ * for performance use the vector instructions.
+ */
 struct Linear {
     float a,b,c;
     float d,e,f;
@@ -52,7 +56,7 @@ struct Linear {
         return Point(a* p.x + b * p.y + c,
                      d* p.x + e* p.y + f);
     }
-    static MultiPoint<__v4sf> move(MultiPoint<__v4sf> pp,
+    static MultiPoint<__v4sf> move(MultiPoint<__v4sf>& pp,
                 const Linear& l1,
                 const Linear& l2,
                 const Linear& l3,
@@ -68,9 +72,7 @@ struct Linear {
         __v4sf x = aa * pp.x + bb * pp.y + cc;
         __v4sf y = dd * pp.x + ee * pp.y + ff;
 
-        pp.x = x;
-        pp.y = y;
-        return pp;
+        return MultiPoint<__v4sf>(x,y);
     }
 };
 
