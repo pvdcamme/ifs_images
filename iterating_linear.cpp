@@ -129,13 +129,16 @@ int main(int argc, char** argv){
         target_name = argv[1];
    }
 
+    auto start_program= std::chrono::steady_clock::now();
+    unsigned int different_seed = start_program.time_since_epoch().count();
+    srand(different_seed);
+
     World<1024> w;
     const size_t transform_count= 16;
     Linear transforms[transform_count];
 
-    auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
-    while(time_passed(start_program) < 6){
+    while(time_passed(start_program) < 4){
         loop_ctr++;
         Point p(0,0);
 
