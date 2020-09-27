@@ -83,12 +83,13 @@ struct TransformGroup {
         return transforms[idx].move(p);
     }
 
-    MultiPoint<__v4sf> move(MultiPoint<__v4sf> p) const {
+    MultiPoint<__v4sf> move(MultiPoint<__v4sf>& p) const {
+        size_t rr = random();
         return Linear::move(p,
-                    transforms[random() % transform_count],
-                    transforms[random() % transform_count],
-                    transforms[random() % transform_count],
-                    transforms[random() % transform_count]);
+                    transforms[rr % transform_count],
+                    transforms[(rr /transform_count) % transform_count],
+                    transforms[(rr /(transform_count * transform_count)) % transform_count],
+                    transforms[(rr /(transform_count * transform_count * transform_count)) % transform_count]);
     }
 };
 
@@ -112,7 +113,7 @@ int main(int argc, char** argv) {
         target_name = argv[1];
     }
 
-    //init_seed();
+    init_seed();
 
     World<1024> w;
     const size_t transform_count= 16;
