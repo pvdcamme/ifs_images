@@ -48,7 +48,7 @@ struct Linear {
         d(normal()), e(normal()), f(normal())
     { }
 
-    Point move(Point& p) const{
+    Point move(Point p) const{
         return Point(a* p.x + b * p.y + c,
                      d* p.x + e* p.y + f);
     }
@@ -58,7 +58,7 @@ template<size_t transform_count>
 struct TransformGroup{
     Linear transforms[transform_count];
 
-    Point move(Point& p) const{
+    Point move(Point p) const{
             size_t idx = random() % transform_count;
             return transforms[idx].move(p);
     }
