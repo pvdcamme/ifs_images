@@ -8,3 +8,5 @@ jos: ${OBJS}
 .cpp.o:
 	g++ ${CPPFLAGS} -c $<
 
+clean:
+	rm ${OBJS} ${TARGET}
