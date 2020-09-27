@@ -74,7 +74,7 @@ public:
             out << std::endl;
         }
     }
-pivate:    
+private:    
     /** 
         The data is stored into two arrays.
          1. A small memory footprint to minimize

@@ -62,6 +62,14 @@ struct TransformGroup {
         size_t idx = random() % transform_count;
         return transforms[idx].move(p);
     }
+
+    MultiPoint<__v4sf> move(MultiPoint<__v4sf> p) const {
+        for(size_t idx(0); idx < p.size();++idx){
+                p[idx] = move(p[idx]);
+        }
+        return p;
+    }
+
 };
 
 
@@ -98,9 +106,7 @@ int main(int argc, char** argv) {
         loop_ctr+= p.size();
 
         for(size_t point_ctr(0); point_ctr < 100000; ++point_ctr) {
-            for(size_t idx(0); idx < p.size();++idx){
-                p[idx] = transforms.move(p[idx]);
-            }
+            p = transforms.move(p);
             w.mark(p);
         }
     }
