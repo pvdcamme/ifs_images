@@ -19,17 +19,16 @@ struct MultiPoint {
     vector_type x;
     vector_type y;
 
-    MultiPoint(float init_x, float init_y){
+    MultiPoint(float init_x, float init_y) {
         x = x ^ x + init_x;
         y = y ^ y + init_y;
-
     }
 
-    size_t size(){
+    size_t size() {
         return sizeof(vector_type) / sizeof(float);
     }
 
-    Point operator[](size_t idx){
+    Point operator[](size_t idx) {
         return Point(x[idx], y[idx]);
     }
 };
