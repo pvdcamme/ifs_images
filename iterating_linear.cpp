@@ -7,8 +7,8 @@
    the density of the results are saved. Some 
    regions have much higher chance than others.
 
-   The program iterates for about 2 seconds 
-   before saving the image.
+   The program iterates for a fixed number of
+   seconds before saving the image.
 
    The result of this program is text file with
    a 2D matrix with counts. This file has the folloing 
@@ -94,7 +94,10 @@ struct World{
         size_t ix = ((p.x + 1) * 0.5) * size;
         size_t iy = ((p.y + 1) * 0.5) * size;
         if (ix < size && iy < size){
-            data[ix + size * iy]++;
+            auto val = data[ix + size * iy]++;
+            if(val > 250){
+                dump();
+            }
         }
     }
 
@@ -132,7 +135,7 @@ int main(int argc, char** argv){
 
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
-    while(time_passed(start_program) < 2){
+    while(time_passed(start_program) < 6){
         loop_ctr++;
         Point p(0,0);
 
