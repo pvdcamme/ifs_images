@@ -37,6 +37,9 @@ struct MultiPoint {
     vector_type x;
     vector_type y;
 
+    MultiPoint(vector_type _x, vector_type _y):
+        x(_x), y(_y)
+    {}
     MultiPoint(float init_x, float init_y) {
         x = x * 0 + init_x;
         y = y * 0 + init_y;

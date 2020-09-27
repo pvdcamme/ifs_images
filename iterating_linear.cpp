@@ -85,9 +85,11 @@ struct Linear {
     }
 };
 
-// A fast power operation.
-// Delegates much to the compiler, use 
-// only for small exponents.
+/**
+ A fast power operation.
+ Delegates much to the compiler, use 
+ only for small exponents.
+*/
 template<size_t exp>
 size_t pow(size_t val){
     return val * pow<exp -1>(val);
@@ -149,7 +151,6 @@ int main(int argc, char** argv) {
     init_seed();
 
     World<1024> w;
-    const size_t transform_count= 16;
     TransformGroup<16> transforms;
 
     auto start_program= std::chrono::steady_clock::now();
