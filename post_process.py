@@ -8,23 +8,35 @@
 """
 import sys
 from PIL import Image
+import numpy
 
-with open(sys.argv[1], 'r') as f:
-    size = int(f.readline())
-    data = []
-    for str_row in f:
-        row = map(int, filter(lambda r: len(r) > 1, str_row[:-1].split(',')))
-        data.append(list(row))
-
-abs_max = max(map(max, data))
-print('Absolute maxiumum is %d' % abs_max)
-
-
-img = Image.new('RGB', (size,size), "black")
-pixels = img.load()
-for y, row_data in enumerate(data):
-    for x, rr in enumerate(row_data): 
-        vv = int((255. * rr)/ abs_max)
-        pixels[x,y] = (vv,vv,vv)
-
-img.save('res.png')
+def convert(file_name):
+    with open(file_name, 'r') as f:
+        size = int(f.readline())
+        data = []
+        flat_data = []
+        for str_row in f:
+            row = map(int, filter(lambda r: len(r) > 1, str_row[:-1].split(',')))
+            row = list(row)
+            data.append(row)
+            flat_data.extend(row)
+    
+    abs_max = max(flat_data)
+    avg = numpy.average(flat_data)
+    print(file_name)
+    print('Maxiumum: %d' % abs_max)
+    print('Average: %f' % avg)
+    print('Std: %f' % numpy.std(flat_data))
+    print('')
+    
+    img = Image.new('RGB', (size,size), "black")
+    pixels = img.load()
+    for y, row_data in enumerate(data):
+        for x, rr in enumerate(row_data): 
+            vv = int((255. * rr)/ abs_max)
+            pixels[x,y] = (vv,vv,vv)
+    
+    img.save(file_name.replace('.txt','') + '.png')
+if '__main__' == __name__:
+    for a_file_name in sys.argv[1:]:
+        convert(a_file_name)
