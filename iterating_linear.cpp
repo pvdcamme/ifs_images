@@ -74,6 +74,16 @@ struct Linear {
     }
 };
 
+template<size_t exp>
+size_t pow(size_t val){
+    return val * pow<exp -1>(val);
+}
+
+template<>
+size_t pow<0>(size_t val){
+    return 1;
+}
+
 template<size_t transform_count>
 struct TransformGroup {
     Linear transforms[transform_count];
@@ -86,10 +96,10 @@ struct TransformGroup {
     MultiPoint<__v4sf> move(MultiPoint<__v4sf>& p) const {
         size_t rr = random();
         return Linear::move(p,
-                    transforms[rr % transform_count],
-                    transforms[(rr /transform_count) % transform_count],
-                    transforms[(rr /(transform_count * transform_count)) % transform_count],
-                    transforms[(rr /(transform_count * transform_count * transform_count)) % transform_count]);
+                    transforms[(rr /pow<0>(transform_count)) % transform_count],
+                    transforms[(rr /pow<1>(transform_count)) % transform_count],
+                    transforms[(rr /pow<2>(transform_count)) % transform_count],
+                    transforms[(rr /pow<3>(transform_count)) % transform_count]);
     }
 };
 
