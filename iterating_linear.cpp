@@ -52,6 +52,26 @@ struct Linear {
         return Point(a* p.x + b * p.y + c,
                      d* p.x + e* p.y + f);
     }
+    static MultiPoint<__v4sf> move(MultiPoint<__v4sf> pp,
+                const Linear& l1,
+                const Linear& l2,
+                const Linear& l3,
+                const Linear& l4)
+    {
+        __v4sf aa = {l1.a, l2.a, l3.a, l4.a};
+        __v4sf bb = {l1.b, l2.b, l3.b, l4.b};
+        __v4sf cc = {l1.c, l2.c, l3.c, l4.c};
+        __v4sf dd = {l1.d, l2.d, l3.d, l4.d};
+        __v4sf ee = {l1.e, l2.e, l3.e, l4.e};
+        __v4sf ff = {l1.f, l2.f, l3.f, l4.f};
+        
+        __v4sf x = aa * pp.x + bb * pp.y + cc;
+        __v4sf y = dd * pp.x + ee * pp.y + ff;
+
+        pp.x = x;
+        pp.y = y;
+        return pp;
+    }
 };
 
 template<size_t transform_count>
@@ -64,12 +84,12 @@ struct TransformGroup {
     }
 
     MultiPoint<__v4sf> move(MultiPoint<__v4sf> p) const {
-        for(size_t idx(0); idx < p.size();++idx){
-                p[idx] = move(p[idx]);
-        }
-        return p;
+        return Linear::move(p,
+                    transforms[random() % transform_count],
+                    transforms[random() % transform_count],
+                    transforms[random() % transform_count],
+                    transforms[random() % transform_count]);
     }
-
 };
 
 
@@ -92,7 +112,7 @@ int main(int argc, char** argv) {
         target_name = argv[1];
     }
 
-    init_seed();
+    //init_seed();
 
     World<1024> w;
     const size_t transform_count= 16;
