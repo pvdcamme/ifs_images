@@ -102,9 +102,9 @@ struct TransformGroup {
 
         return Linear::move(p,
                     transforms[idx0],
-                    transforms[idx0],
-                    transforms[idx0],
-                    transforms[idx0]);
+                    transforms[idx1],
+                    transforms[idx2],
+                    transforms[idx3]);
     }
 };
 
