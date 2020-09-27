@@ -23,10 +23,12 @@
    name can be changed with the first command argument.
 */
 #include <iostream>
-#include <stdlib.h>
-#include <cstdint>
 #include <fstream>
 #include <string>
+
+#include <cstdlib>
+#include <cstdint>
+
 
 float normal(){
     double upper = random() / double(RAND_MAX);
