@@ -114,6 +114,9 @@ struct TransformGroup {
 
 
     TransformGroup() {
+      for(auto ctr(0); ctr < transform_count; ++ctr){
+        transforms[ctr].id =ctr;
+      }
     }
 
     Point move(Point p) const {
