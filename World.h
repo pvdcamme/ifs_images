@@ -12,13 +12,13 @@
 /** Represents a world canvas to collect
     the traversal.
 
-    To render prettier pictures, this world is 
-    3D. 
+    To render prettier pictures, this world is
+    3D.
       x & Y: Match the drawing canvas.
-      Z: Affine transform that created the new 
+      Z: Affine transform that created the new
          position.
-    
-    In postprocessing these coordinates can be 
+
+    In postprocessing these coordinates can be
     mapped to the appropriate color.
 */
 template<size_t size, size_t height>
@@ -28,8 +28,8 @@ public:
         data(new uint8_t[XYZ_count]),
         full_data(new uint32_t[XYZ_count])
     {
-      std::fill(data, data + XYZ_count, 0);
-      std::fill(full_data,full_data + XYZ_count, 0);
+        std::fill(data, data + XYZ_count, 0);
+        std::fill(full_data,full_data + XYZ_count, 0);
     }
 
     ~World() {
