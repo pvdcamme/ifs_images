@@ -25,10 +25,10 @@ template<size_t size, size_t height>
 struct World {
 public:
     World():
-        data(new uint8_t[size * size * height]),
-        full_data(new uint32_t[size * size * height])
+        data(new uint8_t[XYZ_count]),
+        full_data(new uint32_t[XYZ_count])
     {
-        for(size_t ctr(0); ctr < size * size * height; ++ ctr) {
+        for(size_t ctr(0); ctr < XYZ_count; ++ ctr) {
             data[ctr] = 0;
             full_data[ctr] = 0;
         }
@@ -97,11 +97,13 @@ private:
          When the first type is close to overflow
          it should be dumped into the larger one.
      */
+    static constexpr size_t XY_count = size *size;
+    static constexpr size_t XYZ_count = size *size *height;
     uint8_t* data;
     uint32_t* full_data;
 
     void dump() {
-        for(size_t ctr(0); ctr < size * size; ++ ctr) {
+        for(size_t ctr(0); ctr < XY_count; ++ ctr) {
             full_data[ctr] += data[ctr];
             data[ctr] = 0;
         }
