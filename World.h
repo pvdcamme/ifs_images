@@ -9,16 +9,26 @@
 
 #include "Point.h"
 
+/** Represents a world canvas to collect
+    the traversal.
 
-// World from -1 to 1
-template<size_t size>
+    To render prettier pictures, this world is 
+    3D. 
+      x & Y: Match the drawing canvas.
+      Z: Affine transform that created the new 
+         position.
+    
+    In postprocessing these coordinates can be 
+    mapped to the appropriate color.
+*/
+template<size_t size, size_t height>
 struct World {
 public:
     World():
-        data(new uint8_t[size * size]),
-        full_data(new uint32_t[size * size])
+        data(new uint8_t[size * size * height]),
+        full_data(new uint32_t[size * size * height])
     {
-        for(size_t ctr(0); ctr < size * size; ++ ctr) {
+        for(size_t ctr(0); ctr < size * size * height; ++ ctr) {
             data[ctr] = 0;
             full_data[ctr] = 0;
         }
@@ -26,6 +36,7 @@ public:
 
     ~World() {
         delete[] data;
+        delete[] full_data;
     }
 
     void mark(MultiPoint<__v4sf> p) {
