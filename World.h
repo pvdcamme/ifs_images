@@ -37,7 +37,7 @@ public:
         delete[] full_data;
     }
 
-    void mark(MultiPoint<__v4sf> p) {
+    void mark(MultiPoint<__v4sf, __v4si> p) {
         __v4sf res_x = (p.x + 1.f) * (0.5f * size);
         __v4sf res_y = (p.y + 1.f) * (0.5f * size);
 

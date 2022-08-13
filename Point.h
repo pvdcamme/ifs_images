@@ -5,16 +5,17 @@
 
 struct Point {
     float x,y;
+    size_t z;
 
-    Point(float _x, float _y):
-        x(_x), y(_y)
+    Point(float _x, float _y, size_t _z):
+        x(_x), y(_y), z(_z)
     {}
 };
 
 /* Stores several points together.
  * This class is intended for an SIMD approach.
  */
-template<typename vector_type>
+template<typename float_vector_type, typename int_vector_type>
 struct MultiPoint {
     // Helper class for operator[](MultiPoint)
     class PointRef{
@@ -27,26 +28,30 @@ struct MultiPoint {
             {}
                 
             operator Point() const{
-                return Point(parent.x[idx], parent.y[idx]);
+                return Point(parent.x[idx], parent.y[idx], parent.z[idx]);
             }
             void operator=(Point p){
                 parent.x[idx] = p.x;
                 parent.y[idx] = p.y;
+                parent.z[idx] = p.z;
             }
     };
-    vector_type x;
-    vector_type y;
+    float_vector_type x;
+    float_vector_type y;
+    int_vector_type z;
 
-    MultiPoint(vector_type _x, vector_type _y):
-        x(_x), y(_y)
+
+    MultiPoint(float_vector_type _x, float_vector_type _y, int_vector_type _z):
+        x(_x), y(_y), z(_z)
     {}
     MultiPoint(float init_x, float init_y) {
         x = x * 0 + init_x;
         y = y * 0 + init_y;
+        z = z * 0;
     }
 
     size_t size() {
-        return sizeof(vector_type) / sizeof(float);
+        return sizeof(float_vector_type) / sizeof(float);
     }
 
     PointRef operator[](size_t idx) {

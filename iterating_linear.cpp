@@ -49,23 +49,26 @@ float normal() {
  * for performance use the vector instructions.
  */
 struct Linear {
+    size_t id;
     float a,b,c;
     float d,e,f;
 
     Linear():
+        id(0),
         a(normal()), b(normal()), c(normal()),
         d(normal()), e(normal()), f(normal())
     { }
 
     Point move(Point p) const {
         return Point(a* p.x + b * p.y + c,
-                     d* p.x + e* p.y + f);
+                     d* p.x + e* p.y + f,
+                     id);
     }
     
     /* Performs multiple transforms simultaneously.
      * Offers a nice speedup, despite the gathering.
      */
-    static MultiPoint<__v4sf> move(MultiPoint<__v4sf> pp,
+    static MultiPoint<__v4sf, __v4si> move(MultiPoint<__v4sf, __v4si> pp,
                 const Linear& l1,
                 const Linear& l2,
                 const Linear& l3,
@@ -80,8 +83,9 @@ struct Linear {
         
         __v4sf x = aa * pp.x + bb * pp.y + cc;
         __v4sf y = dd * pp.x + ee * pp.y + ff;
+        __v4si z = {l1.id, l2.id, l3.id, l4.id};
 
-        return MultiPoint<__v4sf>(x,y);
+        return MultiPoint<__v4sf, __v4si>(x,y, z);
     }
 };
 
@@ -108,12 +112,16 @@ template<size_t transform_count>
 struct TransformGroup {
     Linear transforms[transform_count];
 
+
+    TransformGroup() {
+    }
+
     Point move(Point p) const {
         size_t idx = random() % transform_count;
         return transforms[idx].move(p);
     }
 
-    MultiPoint<__v4sf> move(MultiPoint<__v4sf>& p) const {
+    MultiPoint<__v4sf, __v4si> move(MultiPoint<__v4sf, __v4si>& p) const {
         size_t rr = random();
         size_t idx0 = (rr /pow<0>(transform_count)) % transform_count;
         size_t idx1 = (rr /pow<1>(transform_count)) % transform_count;
@@ -157,10 +165,11 @@ int main(int argc, char** argv) {
     size_t loop_ctr(0);
     size_t max_runtime= 4;
     while(time_passed(start_program) < max_runtime) {
-        MultiPoint<__v4sf> p(0,0);
-        loop_ctr+= p.size();
+        const size_t internal_loop = 100000;
+        MultiPoint<__v4sf, __v4si> p(0,0);
+        loop_ctr+= p.size() * internal_loop;
 
-        for(size_t point_ctr(0); point_ctr < 100000; ++point_ctr) {
+        for(size_t point_ctr(0); point_ctr < internal_loop; ++point_ctr) {
             p = transforms.move(p);
             w.mark(p);
         }
