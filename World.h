@@ -28,7 +28,7 @@ public:
         delete[] data;
     }
 
-    void mark(MultiPoint<__v4sf> p){
+    void mark(MultiPoint<__v4sf> p) {
         __v4sf res_x = (p.x + 1.f) * (0.5f * size);
         __v4sf res_y = (p.y + 1.f) * (0.5f * size);
 
@@ -40,11 +40,11 @@ public:
 
         data[0] = 0;
         bool needs_to_dump= false;
-        for(size_t ctr(0); ctr < 4; ++ctr){
+        for(size_t ctr(0); ctr < 4; ++ctr) {
             int32_t pos = idx[ctr];
             needs_to_dump = (250 < data[pos]++);
         }
-        if(needs_to_dump){
+        if(needs_to_dump) {
             dump();
         }
     }
@@ -74,15 +74,15 @@ public:
             out << std::endl;
         }
     }
-private:    
-    /** 
+private:
+    /**
         The data is stored into two arrays.
          1. A small memory footprint to minimize
             cache misses. This type will overflow.
 
          2. A large memory one for all the data.
             This one should never overflow.
-         
+
          When the first type is close to overflow
          it should be dumped into the larger one.
      */
