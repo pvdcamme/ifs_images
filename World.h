@@ -28,10 +28,8 @@ public:
         data(new uint8_t[XYZ_count]),
         full_data(new uint32_t[XYZ_count])
     {
-        for(size_t ctr(0); ctr < XYZ_count; ++ ctr) {
-            data[ctr] = 0;
-            full_data[ctr] = 0;
-        }
+      std::fill(data, data + XYZ_count, 0);
+      std::fill(full_data,full_data + XYZ_count, 0);
     }
 
     ~World() {
