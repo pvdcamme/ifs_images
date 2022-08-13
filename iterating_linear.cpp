@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
 
     init_seed();
 
-    World<1024> w;
+    World<1024,1> w;
     TransformGroup<16> transforms;
 
     auto start_program= std::chrono::steady_clock::now();
