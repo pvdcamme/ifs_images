@@ -112,7 +112,6 @@ template<size_t transform_count>
 struct TransformGroup {
     Linear transforms[transform_count];
 
-
     TransformGroup() {
       for(auto ctr(0); ctr < transform_count; ++ctr){
         transforms[ctr].id =ctr;
@@ -179,4 +178,5 @@ int main(int argc, char** argv) {
     }
     std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
     w.save(target_name.c_str());
+    w.print_stats();
 }

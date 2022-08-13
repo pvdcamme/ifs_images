@@ -9,6 +9,8 @@
 
 #include "Point.h"
 
+using std::cout;
+using std::endl;
 /** Represents a world canvas to collect
     the traversal.
 
@@ -51,10 +53,13 @@ public:
         bool needs_to_dump= false;
         for(size_t ctr(0); ctr < 4; ++ctr) {
             int32_t pos = idx[ctr];
-            needs_to_dump = (250 < data[pos]++);
-        }
-        if(needs_to_dump) {
-            dump();
+            auto new_val = data[pos] + 1;
+            if(data[pos] < 253) {
+              data[pos] = new_val;
+            } else {
+              full_data[pos] += new_val;
+              data[pos] = 0;
+            }
         }
     }
 
@@ -82,6 +87,15 @@ public:
             }
             out << std::endl;
         }
+    }
+    void print_stats(){
+      uint64_t total_marks(0);
+      dump();
+      for(size_t ctr(0); ctr < XYZ_count; ++ctr){
+        total_marks += full_data[ctr];
+      }
+      cout << "Total: " << (float) total_marks << endl;
+      cout << "Average: " << (1. * total_marks) / XYZ_count << endl;
     }
 private:
     /**
