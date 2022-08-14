@@ -124,7 +124,7 @@ public:
         JSAMPLE image_row[row_stride];
 
         while (cinfo.next_scanline < cinfo.image_height) {
-            row_pointer[0] = & image_row;
+            row_pointer[0] = image_row;
             (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
         }
         jpeg_finish_compress(&cinfo);
