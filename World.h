@@ -57,10 +57,10 @@ public:
             int32_t pos = idx[ctr];
             auto new_val = data[pos] + 1;
             if(data[pos] < 253) {
-              data[pos] = new_val;
+                data[pos] = new_val;
             } else {
-              full_data[pos] += new_val;
-              data[pos] = 0;
+                full_data[pos] += new_val;
+                data[pos] = 0;
             }
         }
     }
@@ -90,45 +90,46 @@ public:
             out << std::endl;
         }
     }
-    void print_stats(){
-      uint64_t total_marks(0);
-      dump();
-      for(size_t ctr(0); ctr < XYZ_count; ++ctr){
-        total_marks += full_data[ctr];
-      }
-      cout << "Total: " << (float) total_marks << endl;
-      cout << "Average: " << (1. * total_marks) / XYZ_count << endl;
+    void print_stats() {
+        uint64_t total_marks(0);
+        dump();
+        for(size_t ctr(0); ctr < XYZ_count; ++ctr) {
+            total_marks += full_data[ctr];
+        }
+        cout << "Total: " << (float) total_marks << endl;
+        cout << "Average: " << (1. * total_marks) / XYZ_count << endl;
+        cout << "Peak: " << peak() << endl;
     }
     void save_to_jpg() {
-      struct jpeg_compress_struct cinfo;
-      struct jpeg_error_mgr jerr;
-      FILE * outfile;
-      JSAMPROW row_pointer[1];  
-      constexpr int row_stride = size * 3;
-      cinfo.err = jpeg_std_error(&jerr);
-      jpeg_create_compress(&cinfo);
-      if ((outfile = fopen("test.jpg", "wb")) == NULL) {
-          std::cerr << "Can't open file for writing" << std::endl;
-          return;
-     }
-     jpeg_stdio_dest(&cinfo, outfile);
-     cinfo.image_width= size;
-     cinfo.image_height= size;
-     cinfo.input_components = 3;
-     cinfo.in_color_space = JCS_RGB;
-     jpeg_set_defaults(&cinfo);
-     
-       jpeg_start_compress(&cinfo, TRUE);
+        struct jpeg_compress_struct cinfo;
+        struct jpeg_error_mgr jerr;
+        FILE * outfile;
+        JSAMPROW row_pointer[1];
+        constexpr int row_stride = size * 3;
+        cinfo.err = jpeg_std_error(&jerr);
+        jpeg_create_compress(&cinfo);
+        if ((outfile = fopen("test.jpg", "wb")) == NULL) {
+            std::cerr << "Can't open file for writing" << std::endl;
+            return;
+        }
+        jpeg_stdio_dest(&cinfo, outfile);
+        cinfo.image_width= size;
+        cinfo.image_height= size;
+        cinfo.input_components = 3;
+        cinfo.in_color_space = JCS_RGB;
+        jpeg_set_defaults(&cinfo);
 
-       JSAMPLE image_row[row_stride];
+        jpeg_start_compress(&cinfo, TRUE);
 
-       while (cinfo.next_scanline < cinfo.image_height) {
-         row_pointer[0] = & image_row;
-          (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
-       }
-         jpeg_finish_compress(&cinfo);
-           fclose(outfile);
-             jpeg_destroy_compress(&cinfo);
+        JSAMPLE image_row[row_stride];
+
+        while (cinfo.next_scanline < cinfo.image_height) {
+            row_pointer[0] = & image_row;
+            (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+        }
+        jpeg_finish_compress(&cinfo);
+        fclose(outfile);
+        jpeg_destroy_compress(&cinfo);
 
     }
 private:
@@ -149,11 +150,11 @@ private:
     uint64_t* full_data;
 
     size_t peak() {
-      uint64_t peak_marks(0);
-      for(size_t ctr(0); ctr < XYZ_count; ++ctr){
-        peak_marks = std::max(peak_marks, full_data[ctr]);
-      }
-      return peak_marks;
+        uint64_t peak_marks(0);
+        for(size_t ctr(0); ctr < XYZ_count; ++ctr) {
+            peak_marks = std::max(peak_marks, full_data[ctr]);
+        }
+        return peak_marks;
 
     }
 
@@ -163,7 +164,6 @@ private:
             data[ctr] = 0;
         }
     }
-
 };
 
 #endif
