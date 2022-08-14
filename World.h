@@ -8,6 +8,8 @@
 #include <cstdint>
 
 #include "Point.h"
+#include "jpeglib.h"
+
 
 using std::cout;
 using std::endl;
@@ -28,7 +30,7 @@ struct World {
 public:
     World():
         data(new uint8_t[XYZ_count]),
-        full_data(new uint32_t[XYZ_count])
+        full_data(new uint64_t[XYZ_count])
     {
         std::fill(data, data + XYZ_count, 0);
         std::fill(full_data,full_data + XYZ_count, 0);
@@ -97,6 +99,38 @@ public:
       cout << "Total: " << (float) total_marks << endl;
       cout << "Average: " << (1. * total_marks) / XYZ_count << endl;
     }
+    void save_to_jpg() {
+      struct jpeg_compress_struct cinfo;
+      struct jpeg_error_mgr jerr;
+      FILE * outfile;
+      JSAMPROW row_pointer[1];  
+      constexpr int row_stride = size * 3;
+      cinfo.err = jpeg_std_error(&jerr);
+      jpeg_create_compress(&cinfo);
+      if ((outfile = fopen("test.jpg", "wb")) == NULL) {
+          std::cerr << "Can't open file for writing" << std::endl;
+          return;
+     }
+     jpeg_stdio_dest(&cinfo, outfile);
+     cinfo.image_width= size;
+     cinfo.image_height= size;
+     cinfo.input_components = 3;
+     cinfo.in_color_space = JCS_RGB;
+     jpeg_set_defaults(&cinfo);
+     
+       jpeg_start_compress(&cinfo, TRUE);
+
+       JSAMPLE image_row[row_stride];
+
+       while (cinfo.next_scanline < cinfo.image_height) {
+         row_pointer[0] = & image_row;
+          (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+       }
+         jpeg_finish_compress(&cinfo);
+           fclose(outfile);
+             jpeg_destroy_compress(&cinfo);
+
+    }
 private:
     /**
         The data is stored into two arrays.
@@ -112,7 +146,16 @@ private:
     static constexpr size_t XY_count = size *size;
     static constexpr size_t XYZ_count = size *size *height;
     uint8_t* data;
-    uint32_t* full_data;
+    uint64_t* full_data;
+
+    size_t peak() {
+      uint64_t peak_marks(0);
+      for(size_t ctr(0); ctr < XYZ_count; ++ctr){
+        peak_marks = std::max(peak_marks, full_data[ctr]);
+      }
+      return peak_marks;
+
+    }
 
     void dump() {
         for(size_t ctr(0); ctr < XY_count; ++ ctr) {
