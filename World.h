@@ -123,15 +123,15 @@ public:
 
         JSAMPLE image_row[row_stride];
 
-       
-       auto peak_val = peak();
-        for(size_t row_ctr(0); row_ctr < size; ++row_ctr){
-            for(size_t col_ctr(0); col_ctr < size; ++col_ctr){
-              auto current = full_data[row_ctr * size + col_ctr];
-              size_t base_addr = col_ctr * 3;
-              image_row[base_addr+0] =0;
-              image_row[base_addr+1] = (UINT8) ((255. * current) / peak_val);
-              image_row[base_addr+2] = (UINT8) ((255. * current) / peak_val);
+
+        auto peak_val = peak();
+        for(size_t row_ctr(0); row_ctr < size; ++row_ctr) {
+            for(size_t col_ctr(0); col_ctr < size; ++col_ctr) {
+                auto current = full_data[row_ctr * size + col_ctr];
+                size_t base_addr = col_ctr * 3;
+                image_row[base_addr+0] =0;
+                image_row[base_addr+1] = (UINT8) ((255. * current) / peak_val);
+                image_row[base_addr+2] = (UINT8) ((255. * current) / peak_val);
             }
             row_pointer[0] = image_row;
             (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
