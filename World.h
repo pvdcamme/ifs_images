@@ -123,7 +123,14 @@ public:
 
         JSAMPLE image_row[row_stride];
 
-        while (cinfo.next_scanline < cinfo.image_height) {
+        
+        for(size_t row_ctr(0); row_ctr < size; ++row_ctr){
+            for(size_t col_ctr(0); col_ctr < size; ++col_ctr){
+              size_t base_addr = col_ctr * 3;
+              image_row[base_addr+0] =0;
+              image_row[base_addr+1] = (UINT8) ((255. * col_ctr) / size);
+              image_row[base_addr+2] = (UINT8) ((255. * col_ctr) / size);
+            }
             row_pointer[0] = image_row;
             (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
         }
