@@ -1,8 +1,10 @@
-OBJS:= iterating_linear.o
+OBJS:= iterating_linear.o FastRandom.o
 CPPFLAGS:= -Ofast -march=native
 LIBS:= -ljpeg
 TARGET:= ifs
 
+all: clean jos
+  
 jos: ${OBJS}
 	g++ ${CPPFLAGS} ${OBJS} -o ${TARGET} ${LIBS}
 
@@ -10,4 +12,4 @@ jos: ${OBJS}
 	g++ ${CPPFLAGS} -c $<
 
 clean:
-	rm ${OBJS} ${TARGET}
+	rm -f ${OBJS} ${TARGET}

@@ -37,6 +37,7 @@
 #include <cstdint>
 
 #include "World.h"
+#include "FastRandom.h"
 
 
 float normal() {
@@ -110,6 +111,8 @@ size_t pow<0>(size_t val) {
   */
 template<size_t transform_count>
 struct TransformGroup {
+    FastRandom rr;
+
     Linear transforms[transform_count];
 
     TransformGroup() {
@@ -118,17 +121,17 @@ struct TransformGroup {
         }
     }
 
-    Point move(Point p) const {
-        size_t idx = random() % transform_count;
+    Point move(Point p) {
+        size_t idx = rr.random() % transform_count;
         return transforms[idx].move(p);
     }
 
-    MultiPoint move(MultiPoint& p) const {
-        size_t rr = random();
-        size_t idx0 = (rr /pow<0>(transform_count)) % transform_count;
-        size_t idx1 = (rr /pow<1>(transform_count)) % transform_count;
-        size_t idx2 = (rr /pow<2>(transform_count)) % transform_count;
-        size_t idx3 = (rr /pow<3>(transform_count)) % transform_count;
+    MultiPoint move(MultiPoint& p) {
+        uint64_t idxs = rr.random();
+        size_t idx0 = (idxs /pow<0>(transform_count)) % transform_count;
+        size_t idx1 = (idxs /pow<1>(transform_count)) % transform_count;
+        size_t idx2 = (idxs /pow<2>(transform_count)) % transform_count;
+        size_t idx3 = (idxs /pow<3>(transform_count)) % transform_count;
 
         return Linear::move(p,
                             transforms[idx0],
@@ -146,18 +149,11 @@ double time_passed(std::chrono::time_point<clock> start) {
     return elapsed.count();
 }
 
-void init_seed() {
-    auto some_moment = std::chrono::steady_clock::now();
-    unsigned int some_value = some_moment.time_since_epoch().count();
-    srand(some_value);
-}
-
 int main(int argc, char** argv) {
     std::string target_name("result.txt");
     if(argc > 1) {
         target_name = argv[1];
     }
-    init_seed();
 
     World<1024,1> w;
     TransformGroup<16> transforms;
