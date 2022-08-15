@@ -7,11 +7,11 @@ static uint64_t rol64(uint64_t x, uint64_t k)
     return (x << k) | (x >> (64 - k));
 }
 
-FastRandom::FastRandom() {
-    s[0] = 1 + random();
-    s[1] = 2 + random();
-    s[2] = 3 + random();
-    s[3] = 4 + random();
+FastRandom::FastRandom(uint64_t seed) {
+    s[0] = seed + 1 + random();
+    s[1] = seed + 2 + random();
+    s[2] = seed + 3 + random();
+    s[3] = seed + 4 + random();
 }
 
 uint64_t FastRandom::random()

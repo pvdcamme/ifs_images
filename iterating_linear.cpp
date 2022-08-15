@@ -112,10 +112,9 @@ size_t pow<0>(size_t val) {
 template<size_t transform_count>
 struct TransformGroup {
     FastRandom rr;
-
     Linear transforms[transform_count];
 
-    TransformGroup() {
+    TransformGroup() : rr(random()){
         for(auto ctr(0); ctr < transform_count; ++ctr) {
             transforms[ctr].id =ctr;
         }
@@ -149,7 +148,14 @@ double time_passed(std::chrono::time_point<clock> start) {
     return elapsed.count();
 }
 
+static void init_rand() {
+    auto now = std::chrono::steady_clock::now();
+    auto some_val = now.time_since_epoch().count();
+    srand(some_val);
+}
+
 int main(int argc, char** argv) {
+    init_rand();
     std::string target_name("result.txt");
     if(argc > 1) {
         target_name = argv[1];
@@ -163,8 +169,8 @@ int main(int argc, char** argv) {
     size_t max_runtime= 4;
     while(time_passed(start_program) < max_runtime) {
         const size_t internal_loop = 100000;
-        //MultiPoint p(0,0);
-        Point p(0,0);
+        MultiPoint p(0,0);
+        //Point p(0,0);
         loop_ctr+= p.size() * internal_loop;
 
         for(size_t point_ctr(0); point_ctr < internal_loop; ++point_ctr) {

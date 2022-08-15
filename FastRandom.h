@@ -5,7 +5,7 @@
 struct FastRandom {
     uint64_t s[4];
 
-    FastRandom();
+    FastRandom(uint64_t seed=0);
     uint64_t random();
 };
 #endif
