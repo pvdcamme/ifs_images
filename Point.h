@@ -7,15 +7,20 @@ struct Point {
     float x,y;
     size_t z;
 
-    Point(float _x, float _y, size_t _z):
+    Point(float _x, float _y, size_t _z = 0):
         x(_x), y(_y), z(_z)
     {}
+    size_t size() const {
+      return 1;
+    }
 };
+
+typedef __v4si int_vector_type;
+typedef __v4sf float_vector_type;
 
 /* Stores several points together.
  * This class is intended for an SIMD approach.
  */
-template<typename float_vector_type, typename int_vector_type>
 struct MultiPoint {
     // Helper class for operator[](MultiPoint)
     class PointRef{

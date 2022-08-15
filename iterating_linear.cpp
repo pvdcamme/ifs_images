@@ -68,24 +68,24 @@ struct Linear {
     /* Performs multiple transforms simultaneously.
      * Offers a nice speedup, despite the gathering.
      */
-    static MultiPoint<__v4sf, __v4si> move(MultiPoint<__v4sf, __v4si> pp,
+    static MultiPoint move(MultiPoint pp,
                 const Linear& l1,
                 const Linear& l2,
                 const Linear& l3,
                 const Linear& l4)
     {
-        __v4sf aa = {l1.a, l2.a, l3.a, l4.a};
-        __v4sf bb = {l1.b, l2.b, l3.b, l4.b};
-        __v4sf cc = {l1.c, l2.c, l3.c, l4.c};
-        __v4sf dd = {l1.d, l2.d, l3.d, l4.d};
-        __v4sf ee = {l1.e, l2.e, l3.e, l4.e};
-        __v4sf ff = {l1.f, l2.f, l3.f, l4.f};
+        float_vector_type aa = {l1.a, l2.a, l3.a, l4.a};
+        float_vector_type bb = {l1.b, l2.b, l3.b, l4.b};
+        float_vector_type cc = {l1.c, l2.c, l3.c, l4.c};
+        float_vector_type dd = {l1.d, l2.d, l3.d, l4.d};
+        float_vector_type ee = {l1.e, l2.e, l3.e, l4.e};
+        float_vector_type ff = {l1.f, l2.f, l3.f, l4.f};
         
-        __v4sf x = aa * pp.x + bb * pp.y + cc;
-        __v4sf y = dd * pp.x + ee * pp.y + ff;
-        __v4si z = {l1.id, l2.id, l3.id, l4.id};
+        float_vector_type x = aa * pp.x + bb * pp.y + cc;
+        float_vector_type y = dd * pp.x + ee * pp.y + ff;
+        int_vector_type z = {l1.id, l2.id, l3.id, l4.id};
 
-        return MultiPoint<__v4sf, __v4si>(x,y, z);
+        return MultiPoint(x,y, z);
     }
 };
 
@@ -123,7 +123,7 @@ struct TransformGroup {
         return transforms[idx].move(p);
     }
 
-    MultiPoint<__v4sf, __v4si> move(MultiPoint<__v4sf, __v4si>& p) const {
+    MultiPoint move(MultiPoint& p) const {
         size_t rr = random();
         size_t idx0 = (rr /pow<0>(transform_count)) % transform_count;
         size_t idx1 = (rr /pow<1>(transform_count)) % transform_count;
@@ -168,7 +168,8 @@ int main(int argc, char** argv) {
     size_t max_runtime= 4;
     while(time_passed(start_program) < max_runtime) {
         const size_t internal_loop = 100000;
-        MultiPoint<__v4sf, __v4si> p(0,0);
+        //MultiPoint p(0,0);
+        Point p(0,0);
         loop_ctr+= p.size() * internal_loop;
 
         for(size_t point_ctr(0); point_ctr < internal_loop; ++point_ctr) {
