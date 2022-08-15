@@ -47,16 +47,18 @@ public:
 
         __v4si ix = __builtin_ia32_cvtps2dq(res_x);
         __v4si iy = __builtin_ia32_cvtps2dq(res_y);
-        __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size));
 
-        __v4si idx = good & (ix + int32_t(size) * iy);
+        __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (p.z < int32_t(height));
+
+        __v4si offset = p.z * int32_t(XY_count);
+        __v4si base_idx = (ix + int32_t(size) * iy + offset);
+        __v4si idx = good & base_idx;
 
         data[0] = 0;
-        bool needs_to_dump= false;
-        for(size_t ctr(0); ctr < 4; ++ctr) {
+        for(size_t ctr(0); ctr < p.size(); ++ctr) {
             int32_t pos = idx[ctr];
             auto new_val = data[pos] + 1;
-            if(data[pos] < 253) {
+            if(new_val < 254){
                 data[pos] = new_val;
             } else {
                 full_data[pos] += new_val;
@@ -69,8 +71,8 @@ public:
     void mark(struct Point p) {
         size_t ix = ((p.x + 1) * 0.5) * size;
         size_t iy = ((p.y + 1) * 0.5) * size;
-        if (ix < size && iy < size) {
-            auto val = data[ix + size * iy]++;
+        if (ix < size && iy < size && p.z < height) {
+            auto val = data[ix + size * iy + XY_count * p.z]++;
             if(val > 250) {
                 dump();
             }

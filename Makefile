@@ -1,5 +1,5 @@
 OBJS:= iterating_linear.o FastRandom.o
-CPPFLAGS:= -Ofast -march=native
+CPPFLAGS:= -Ofast -march=native -g -flto
 LIBS:= -ljpeg
 TARGET:= ifs
 

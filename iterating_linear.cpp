@@ -50,7 +50,7 @@ float normal() {
  * for performance use the vector instructions.
  */
 struct Linear {
-    size_t id;
+    int32_t id;
     float a,b,c;
     float d,e,f;
 
@@ -160,9 +160,10 @@ int main(int argc, char** argv) {
     if(argc > 1) {
         target_name = argv[1];
     }
-
-    World<1024,1> w;
-    TransformGroup<16> transforms;
+    
+    constexpr auto N_TRANSFORMS = 16;
+    World<1024,N_TRANSFORMS> w;
+    TransformGroup<N_TRANSFORMS> transforms;
 
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
