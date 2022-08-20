@@ -40,6 +40,8 @@
 #include "FastRandom.h"
 
 
+static std::default_random_engine generator;
+
 float normal() {
     double upper = random() / double(RAND_MAX);
     return float(2 * upper - 1);
@@ -55,10 +57,32 @@ struct Linear {
     float d,e,f;
 
     Linear():
-        id(0),
-        a(normal()), b(normal()), c(normal()),
-        d(normal()), e(normal()), f(normal())
-    { }
+        id(0)
+    {
+      std::normal_distribution<double> distribution(0.0,0.3);
+
+      a = distribution(generator);
+      b = distribution(generator);
+      c = distribution(generator);
+      d = distribution(generator);
+      e = distribution(generator);
+      f = distribution(generator);
+
+      if(normal() < -0.4) {
+        std::cout << "Rotatation" << std::endl;
+        float angle = normal() * 2 * 3.1415;
+        float scale = std::normal_distribution<float>(0.7, 0.1)(generator);
+
+
+        a = scale * cos(angle) + distribution(generator);
+        b = scale * -sin(angle) +distribution(generator);
+
+        c =  distribution(generator);
+        d = scale * sin(angle) + distribution(generator);
+        e = scale * cos(angle) + distribution(generator);
+        f =  distribution(generator);
+      }
+    }
 
     Point move(Point p) const {
         return Point(a* p.x + b * p.y + c,
@@ -156,6 +180,7 @@ static void init_rand() {
 
 int main(int argc, char** argv) {
     init_rand();
+    generator.seed(random());
     std::string target_name("result.txt");
     if(argc > 1) {
         target_name = argv[1];
@@ -167,9 +192,10 @@ int main(int argc, char** argv) {
 
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
-    size_t max_runtime= 4;
+    size_t max_runtime= 60;
     while(time_passed(start_program) < max_runtime) {
-        const size_t internal_loop = 100000;
+        const size_t internal_loop = 30000000;
+        cout << "Start of a cycle (" << time_passed(start_program) << ") " <<  endl;
         MultiPoint p(0,0);
         //Point p(0,0);
         loop_ctr+= p.size() * internal_loop;
