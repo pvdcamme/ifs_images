@@ -1,6 +1,7 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include <random>
 #include <fstream>
 #include <string>
 #include <immintrin.h>
@@ -8,11 +9,84 @@
 #include <cstdint>
 
 #include "Point.h"
+#include <complex>
 #include "jpeglib.h"
+
+#include <vector>
+#include <numbers>
+#include <limits>
 
 
 using std::cout;
 using std::endl;
+
+using std::complex;
+struct Colorizer {
+  complex<float> val;
+  size_t colors;
+  Colorizer(size_t _colors):
+    val((0,0)), colors(_colors)
+  {
+  }
+  void addColor(size_t ctr, float magnitude) {
+      float phase = (ctr * 3.1415f * 2) / colors;
+        val += std::polar(magnitude, phase);
+  }
+  void normalize() {
+    val /= std::abs(val);
+  }
+  
+  void rgb(float peak, uint8_t& rr, uint8_t& gg, uint8_t& bb) {
+      if (std::abs(val) == 0.){
+        rr= 255;
+        gg = 255;
+        bb = 255;
+        return;
+      }
+      float orig_abs = std::abs(val);
+      normalize();
+      float h = (std::arg(val) + 3.1415) * 6 / (2 * 3.1415);
+      float hh = h;
+
+      while(hh >2) {
+        hh -= 2;
+      }
+      float c = std::log(std::max(1.f, orig_abs)) / std::log(peak);
+      float x = c * (1 - std::abs(hh -1));
+      float r,g,b;
+      if(h < 1) {
+        r = c;
+        g = x;
+        b = 0;
+      } else if(h < 2) {
+        r = x;
+        g = c;
+        b = 0;
+      } else if(h < 3) {
+        r = 0;
+        g = c;
+        b = x;
+      } else if(h < 4) {
+        r = 0;
+        g = x;
+        b = c;
+      } else if(h < 5) {
+        r = x;
+        g = 0;
+        b = c;
+      } else {
+        r = c;
+        g = 0;
+        b = x;
+      }
+      float m = 1 - c;
+      rr = 255 * (r + m);
+      gg = 255 * (g + m);
+      bb = 255 * (b + m);
+
+    
+  }
+};
 /** Represents a world canvas to collect
     the traversal.
 
@@ -57,12 +131,9 @@ public:
         data[0] = 0;
         for(size_t ctr(0); ctr < p.size(); ++ctr) {
             int32_t pos = idx[ctr];
-            auto new_val = data[pos] + 1;
-            if(new_val < 254){
-                data[pos] = new_val;
-            } else {
-                full_data[pos] += new_val;
-                data[pos] = 0;
+            data[pos] +=+ 1;
+            if(data[pos] == 0){
+                full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
         }
     }
@@ -72,9 +143,10 @@ public:
         size_t ix = ((p.x + 1) * 0.5) * size;
         size_t iy = ((p.y + 1) * 0.5) * size;
         if (ix < size && iy < size && p.z < height) {
-            auto val = data[ix + size * iy + XY_count * p.z]++;
-            if(val > 250) {
-                dump();
+            auto pos = ix + size * iy + XY_count * p.z;
+            data[pos] +=+ 1;
+            if(data[pos] == 0){
+                full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
         }
     }
@@ -94,13 +166,27 @@ public:
     }
     void print_stats() {
         uint64_t total_marks(0);
+        uint64_t least_marks(100000000);
+        uint64_t spread_out = 0;
         dump();
         for(size_t ctr(0); ctr < XYZ_count; ++ctr) {
             total_marks += full_data[ctr];
+            least_marks = std::min(least_marks, full_data[ctr]);
         }
+
+        for(size_t ctr(0); ctr < XY_count; ++ctr) {
+          for(size_t h(0); h < height; ++h) {
+            if (full_data[ctr + h * XY_count] > 0) {
+              spread_out++;
+            }
+          }
+        }
+        
         cout << "Total: " << (float) total_marks << endl;
         cout << "Average: " << (1. * total_marks) / XYZ_count << endl;
         cout << "Peak: " << peak() << endl;
+        cout << "Least: " << least_marks << endl;
+        cout << "Spread: " << float(spread_out) / XY_count << endl;
     }
     void save_to_jpg() {
         struct jpeg_compress_struct cinfo;
@@ -129,11 +215,19 @@ public:
         auto peak_val = peak();
         for(size_t row_ctr(0); row_ctr < size; ++row_ctr) {
             for(size_t col_ctr(0); col_ctr < size; ++col_ctr) {
+
+                Colorizer color(height);
+                for(size_t z(0); z < height; ++z){
+                    auto vv = full_data[row_ctr * size + col_ctr + z * XY_count];
+                    color.addColor(z,vv);
+                }
                 auto current = full_data[row_ctr * size + col_ctr];
                 size_t base_addr = col_ctr * 3;
-                image_row[base_addr+0] =0;
-                image_row[base_addr+1] = (UINT8) ((255. * current) / peak_val);
-                image_row[base_addr+2] = (UINT8) ((255. * current) / peak_val);
+                color.rgb(peak_val, image_row[base_addr+0], image_row[base_addr+1], image_row[base_addr + 2]);
+
+                //image_row[base_addr+0] =0;
+                //image_row[base_addr+1] = (UINT8) ((255. * current) / peak_val);
+                //image_row[base_addr+2] = (UINT8) ((255. * current) / peak_val);
             }
             row_pointer[0] = image_row;
             (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
@@ -141,8 +235,8 @@ public:
         jpeg_finish_compress(&cinfo);
         fclose(outfile);
         jpeg_destroy_compress(&cinfo);
-
     }
+
 private:
     /**
         The data is stored into two arrays.
