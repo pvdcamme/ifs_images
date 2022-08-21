@@ -59,29 +59,29 @@ struct Linear {
     Linear():
         id(0)
     {
-      std::normal_distribution<double> distribution(0.0,0.3);
+        std::normal_distribution<double> distribution(0.0,0.3);
 
-      a = distribution(generator);
-      b = distribution(generator);
-      c = distribution(generator);
-      d = distribution(generator);
-      e = distribution(generator);
-      f = distribution(generator);
+        a = distribution(generator);
+        b = distribution(generator);
+        c = distribution(generator);
+        d = distribution(generator);
+        e = distribution(generator);
+        f = distribution(generator);
 
-      if(normal() < -0.4) {
-        std::cout << "Rotatation" << std::endl;
-        float angle = normal() * 2 * 3.1415;
-        float scale = std::normal_distribution<float>(0.7, 0.1)(generator);
+        if(normal() < -0.4) {
+            std::cout << "Rotatation" << std::endl;
+            float angle = normal() * 2 * 3.1415;
+            float scale = std::normal_distribution<float>(0.7, 0.1)(generator);
 
 
-        a = scale * cos(angle) + distribution(generator);
-        b = scale * -sin(angle) +distribution(generator);
+            a = scale * cos(angle) + distribution(generator);
+            b = scale * -sin(angle) +distribution(generator);
 
-        c =  distribution(generator);
-        d = scale * sin(angle) + distribution(generator);
-        e = scale * cos(angle) + distribution(generator);
-        f =  distribution(generator);
-      }
+            c =  distribution(generator);
+            d = scale * sin(angle) + distribution(generator);
+            e = scale * cos(angle) + distribution(generator);
+            f =  distribution(generator);
+        }
     }
 
     Point move(Point p) const {
@@ -138,7 +138,7 @@ struct TransformGroup {
     FastRandom rr;
     Linear transforms[transform_count];
 
-    TransformGroup() : rr(random()){
+    TransformGroup() : rr(random()) {
         for(auto ctr(0); ctr < transform_count; ++ctr) {
             transforms[ctr].id =ctr;
         }
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
     if(argc > 1) {
         target_name = argv[1];
     }
-    
+
     constexpr auto N_TRANSFORMS = 16;
     World<1024,N_TRANSFORMS> w;
     TransformGroup<N_TRANSFORMS> transforms;
@@ -203,14 +203,14 @@ int main(int argc, char** argv) {
         MultiPoint saved[INNER_CTR];
 
         for(size_t point_ctr(0); point_ctr < internal_loop; point_ctr += INNER_CTR) {
-            for(auto inner(0); inner < INNER_CTR; ++inner){
-              saved[inner] = p = transforms.move(p);
+            for(auto inner(0); inner < INNER_CTR; ++inner) {
+                saved[inner] = p = transforms.move(p);
             }
 
             w.mark<INNER_CTR>(saved);
         }
     }
-    
+
     std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
     w.save(target_name.c_str());
     w.print_stats();

@@ -30,70 +30,70 @@ using std::complex;
   Creates the colors for a single pixel.
  */
 struct Colorizer {
-  complex<float> val;
-  size_t colors;
-  Colorizer(size_t _colors):
-    val((0,0)), colors(_colors)
-  {
-  }
-  void addColor(size_t ctr, float magnitude) {
-      float phase = (ctr * 3.1415f * 2) / colors;
+    complex<float> val;
+    size_t colors;
+    Colorizer(size_t _colors):
+        val((0,0)), colors(_colors)
+    {
+    }
+    void addColor(size_t ctr, float magnitude) {
+        float phase = (ctr * 3.1415f * 2) / colors;
         val += std::polar(magnitude, phase);
-  }
-  void normalize() {
-    val /= std::abs(val);
-  }
-  
-  void rgb(float peak, uint8_t& rr, uint8_t& gg, uint8_t& bb) {
-      if (std::abs(val) == 0.){
-        rr= 255;
-        gg = 255;
-        bb = 255;
-        return;
-      }
-      float orig_abs = std::abs(val);
-      normalize();
-      float h = (std::arg(val) + 3.1415) * 6 / (2 * 3.1415);
-      float hh = h;
+    }
+    void normalize() {
+        val /= std::abs(val);
+    }
 
-      while(hh >2) {
-        hh -= 2;
-      }
-      float c = std::log(std::max(1.f, orig_abs)) / std::log(peak);
-      float x = c * (1 - std::abs(hh -1));
-      float r,g,b;
-      if(h < 1) {
-        r = c;
-        g = x;
-        b = 0;
-      } else if(h < 2) {
-        r = x;
-        g = c;
-        b = 0;
-      } else if(h < 3) {
-        r = 0;
-        g = c;
-        b = x;
-      } else if(h < 4) {
-        r = 0;
-        g = x;
-        b = c;
-      } else if(h < 5) {
-        r = x;
-        g = 0;
-        b = c;
-      } else {
-        r = c;
-        g = 0;
-        b = x;
-      }
-      float m = 1 - c;
-      rr = 255 * (r + m);
-      gg = 255 * (g + m);
-      bb = 255 * (b + m);
+    void rgb(float peak, uint8_t& rr, uint8_t& gg, uint8_t& bb) {
+        if (std::abs(val) == 0.) {
+            rr= 255;
+            gg = 255;
+            bb = 255;
+            return;
+        }
+        float orig_abs = std::abs(val);
+        normalize();
+        float h = (std::arg(val) + 3.1415) * 6 / (2 * 3.1415);
+        float hh = h;
 
-    
-  }
+        while(hh >2) {
+            hh -= 2;
+        }
+        float c = std::log(std::max(1.f, orig_abs)) / std::log(peak);
+        float x = c * (1 - std::abs(hh -1));
+        float r,g,b;
+        if(h < 1) {
+            r = c;
+            g = x;
+            b = 0;
+        } else if(h < 2) {
+            r = x;
+            g = c;
+            b = 0;
+        } else if(h < 3) {
+            r = 0;
+            g = c;
+            b = x;
+        } else if(h < 4) {
+            r = 0;
+            g = x;
+            b = c;
+        } else if(h < 5) {
+            r = x;
+            g = 0;
+            b = c;
+        } else {
+            r = c;
+            g = 0;
+            b = x;
+        }
+        float m = 1 - c;
+        rr = 255 * (r + m);
+        gg = 255 * (g + m);
+        bb = 255 * (b + m);
+
+
+    }
 };
 /** Represents a world canvas to collect
     the traversal.
@@ -109,7 +109,7 @@ struct Colorizer {
 */
 template<size_t size, size_t height>
 struct World {
-    static constexpr size_t line_vals = 16; 
+    static constexpr size_t line_vals = 16;
     static constexpr size_t total_line_size = 4 * 1024;
 public:
     World():
@@ -129,36 +129,36 @@ public:
     void mark(MultiPoint* pps) {
         __v4si idxes[cnt];
         for(auto inner(0); inner < cnt; ++inner) {
-        const auto p = pps[inner];
+            const auto p = pps[inner];
 
-        __v4sf res_x = (p.x + 1.f) * (0.5f * size);
-        __v4sf res_y = (p.y + 1.f) * (0.5f * size);
+            __v4sf res_x = (p.x + 1.f) * (0.5f * size);
+            __v4sf res_y = (p.y + 1.f) * (0.5f * size);
 
-        __v4si ix = __builtin_ia32_cvtps2dq(res_x);
-        __v4si iy = __builtin_ia32_cvtps2dq(res_y);
+            __v4si ix = __builtin_ia32_cvtps2dq(res_x);
+            __v4si iy = __builtin_ia32_cvtps2dq(res_y);
 
-        __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (p.z < int32_t(height));
+            __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (p.z < int32_t(height));
 
-        __v4si offset = p.z * int32_t(XY_count);
-        __v4si base_idx = (ix + int32_t(size) * iy + offset);
-        auto idx = base_idx & good;
-        idxes[inner] = base_idx & good;
+            __v4si offset = p.z * int32_t(XY_count);
+            __v4si base_idx = (ix + int32_t(size) * iy + offset);
+            auto idx = base_idx & good;
+            idxes[inner] = base_idx & good;
         }
         data[0] = 0;
         for(auto inner(0); inner < cnt; ++inner) {
             auto idx = idxes[inner];
-        for(size_t ctr(0); ctr < 4; ++ctr) {
-            int32_t pos = idx[ctr];
-            data[pos] += 1;
-            if(data[pos] == 0){
-                full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
-            }
+            for(size_t ctr(0); ctr < 4; ++ctr) {
+                int32_t pos = idx[ctr];
+                data[pos] += 1;
+                if(data[pos] == 0) {
+                    full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
+                }
             }
         }
     }
 
     void mark(MultiPoint p) {
-      mark<1>(&p);
+        mark<1>(&p);
     }
 
 
@@ -168,7 +168,7 @@ public:
         if (ix < size && iy < size && p.z < height) {
             auto pos = ix + size * iy + XY_count * p.z;
             data[pos] +=+ 1;
-            if(data[pos] == 0){
+            if(data[pos] == 0) {
                 full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
         }
@@ -198,13 +198,13 @@ public:
         }
 
         for(size_t ctr(0); ctr < XY_count; ++ctr) {
-          for(size_t h(0); h < height; ++h) {
-            if (full_data[ctr + h * XY_count] > 0) {
-              spread_out++;
+            for(size_t h(0); h < height; ++h) {
+                if (full_data[ctr + h * XY_count] > 0) {
+                    spread_out++;
+                }
             }
-          }
         }
-        
+
         cout << "Total: " << (float) total_marks << endl;
         cout << "Average: " << (1. * total_marks) / XYZ_count << endl;
         cout << "Peak: " << peak() << endl;
@@ -240,7 +240,7 @@ public:
             for(size_t col_ctr(0); col_ctr < size; ++col_ctr) {
 
                 Colorizer color(height);
-                for(size_t z(0); z < height; ++z){
+                for(size_t z(0); z < height; ++z) {
                     auto vv = full_data[row_ctr * size + col_ctr + z * XY_count];
                     color.addColor(z,vv);
                 }
