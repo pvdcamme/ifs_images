@@ -44,7 +44,11 @@ struct MultiPoint {
     float_vector_type x;
     float_vector_type y;
     int_vector_type z;
+    MultiPoint() {};
 
+    MultiPoint(const MultiPoint& oth):
+        x(oth.x), y(oth.y), z(oth.z){
+    }
 
     MultiPoint(float_vector_type _x, float_vector_type _y, int_vector_type _z):
         x(_x), y(_y), z(_z)
@@ -55,7 +59,7 @@ struct MultiPoint {
         z = z * 0;
     }
 
-    size_t size() {
+    size_t size() const{
         return sizeof(float_vector_type) / sizeof(float);
     }
 
