@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <immintrin.h>
+#include <cassert>
 
 #include <cstdint>
 
@@ -16,11 +17,18 @@
 #include <numbers>
 #include <limits>
 
+#include <string>
+
 
 using std::cout;
 using std::endl;
 
 using std::complex;
+
+
+/**
+  Creates the colors for a single pixel.
+ */
 struct Colorizer {
   complex<float> val;
   size_t colors;
@@ -101,6 +109,8 @@ struct Colorizer {
 */
 template<size_t size, size_t height>
 struct World {
+    static constexpr size_t line_vals = 16; 
+    static constexpr size_t total_line_size = 4 * 1024;
 public:
     World():
         data(new uint8_t[XYZ_count]),
@@ -113,6 +123,38 @@ public:
     ~World() {
         delete[] data;
         delete[] full_data;
+    }
+
+    template<size_t cnt>
+    void mark(MultiPoint* pps) {
+        __v4si idxes[cnt];
+        for(auto inner(0); inner < cnt; ++inner) {
+        const auto p = pps[inner];
+
+        __v4sf res_x = (p.x + 1.f) * (0.5f * size);
+        __v4sf res_y = (p.y + 1.f) * (0.5f * size);
+
+        __v4si ix = __builtin_ia32_cvtps2dq(res_x);
+        __v4si iy = __builtin_ia32_cvtps2dq(res_y);
+
+        __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (p.z < int32_t(height));
+
+        __v4si offset = p.z * int32_t(XY_count);
+        __v4si base_idx = (ix + int32_t(size) * iy + offset);
+        auto idx = base_idx & good;
+        idxes[inner] = base_idx & good;
+        }
+        data[0] = 0;
+        for(auto inner(0); inner < cnt; ++inner) {
+            auto idx = idxes[inner];
+        for(size_t ctr(0); ctr < 4; ++ctr) {
+            int32_t pos = idx[ctr];
+            data[pos] += 1;
+            if(data[pos] == 0){
+                full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
+            }
+            }
+        }
     }
 
     void mark(MultiPoint p) {
@@ -188,7 +230,7 @@ public:
         cout << "Least: " << least_marks << endl;
         cout << "Spread: " << float(spread_out) / XY_count << endl;
     }
-    void save_to_jpg() {
+    void save_to_jpg(std::string name) {
         struct jpeg_compress_struct cinfo;
         struct jpeg_error_mgr jerr;
         FILE * outfile;
@@ -196,7 +238,7 @@ public:
         constexpr int row_stride = size * 3;
         cinfo.err = jpeg_std_error(&jerr);
         jpeg_create_compress(&cinfo);
-        if ((outfile = fopen("test.jpg", "wb")) == NULL) {
+        if ((outfile = fopen(name.c_str(), "wb")) == NULL) {
             std::cerr << "Can't open file for writing" << std::endl;
             return;
         }

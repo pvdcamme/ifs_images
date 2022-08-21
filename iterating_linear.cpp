@@ -192,21 +192,27 @@ int main(int argc, char** argv) {
 
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
-    size_t max_runtime= 60;
+    size_t max_runtime= 3600 * 5;
+
     while(time_passed(start_program) < max_runtime) {
         const size_t internal_loop = 30000000;
         cout << "Start of a cycle (" << time_passed(start_program) << ") " <<  endl;
         MultiPoint p(0,0);
-        //Point p(0,0);
         loop_ctr+= p.size() * internal_loop;
+        constexpr auto INNER_CTR = 32;
+        MultiPoint saved[INNER_CTR];
 
-        for(size_t point_ctr(0); point_ctr < internal_loop; ++point_ctr) {
-            p = transforms.move(p);
-            w.mark(p);
+        for(size_t point_ctr(0); point_ctr < internal_loop; point_ctr += INNER_CTR) {
+            for(auto inner(0); inner < INNER_CTR; ++inner){
+              saved[inner] = p = transforms.move(p);
+            }
+
+            w.mark<INNER_CTR>(saved);
         }
     }
+    
     std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
     w.save(target_name.c_str());
     w.print_stats();
-    w.save_to_jpg();
+    w.save_to_jpg("test.jpg");
 }
