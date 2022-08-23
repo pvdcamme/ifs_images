@@ -268,10 +268,10 @@ public:
 private:
     /**
         The data is stored into two arrays.
-         1. A small memory footprint to minimize
+         1. A small one to minimize
             cache misses. This type will overflow.
 
-         2. A large memory one for all the data.
+         2. A large one for the full the data.
             This one should never overflow.
 
          When the first type is close to overflow
