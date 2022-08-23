@@ -144,7 +144,10 @@ public:
             auto idx = base_idx & good;
             idxes[inner] = base_idx & good;
         }
+        // Don't care about pixel at (0,0).
+        // Used to dump the invalid coordinates.
         data[0] = 0;
+
         for(auto inner(0); inner < cnt; ++inner) {
             auto idx = idxes[inner];
             for(size_t ctr(0); ctr < 4; ++ctr) {
@@ -171,6 +174,12 @@ public:
             if(data[pos] == 0) {
                 full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
+        }
+    }
+    void reduce() {
+        dump();
+        for(auto ctr(0); ctr < XYZ_count; ++ctr) {
+          full_data[ctr] = ceil(full_data[ctr] * 0.99);
         }
     }
 
@@ -248,9 +257,6 @@ public:
                 size_t base_addr = col_ctr * 3;
                 color.rgb(peak_val, image_row[base_addr+0], image_row[base_addr+1], image_row[base_addr + 2]);
 
-                //image_row[base_addr+0] =0;
-                //image_row[base_addr+1] = (UINT8) ((255. * current) / peak_val);
-                //image_row[base_addr+2] = (UINT8) ((255. * current) / peak_val);
             }
             row_pointer[0] = image_row;
             (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
