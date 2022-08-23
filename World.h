@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <limits>
+#include <bitset>
 
 #include <string>
 
@@ -126,9 +127,14 @@ public:
 
     template<size_t cnt>
     void mark(MultiPoint* pps) {
-        __v4si idxes[cnt];
+        __v4si previous = {0, 0, 0, 0};
+
+        // Don't care about pixel at (0,0).
+        // Used to dump the invalid coordinates.
+        data[0] = 0;
         for(auto inner(0); inner < cnt; ++inner) {
             const auto p = pps[inner];
+            const auto pz = p.z;
 
             __v4sf res_x = (p.x + 1.f) * (0.5f * size);
             __v4sf res_y = (p.y + 1.f) * (0.5f * size);
@@ -136,25 +142,28 @@ public:
             __v4si ix = __builtin_ia32_cvtps2dq(res_x);
             __v4si iy = __builtin_ia32_cvtps2dq(res_y);
 
-            __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (p.z < int32_t(height));
+            __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (pz < int32_t(height));
 
-            __v4si offset = p.z * int32_t(XY_count);
+            __v4si offset = pz * int32_t(XY_count);
             __v4si base_idx = (ix + int32_t(size) * iy + offset);
-            auto idx = base_idx & good;
-            idxes[inner] = base_idx & good;
-        }
-        // Don't care about pixel at (0,0).
-        // Used to dump the invalid coordinates.
-        data[0] = 0;
 
-        for(auto inner(0); inner < cnt; ++inner) {
-            auto idx = idxes[inner];
+            auto idx = base_idx & good;
             for(size_t ctr(0); ctr < 4; ++ctr) {
-                int32_t pos = idx[ctr];
+                int32_t pos = previous[ctr];
                 data[pos] += 1;
                 if(data[pos] == 0) {
                     full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
                 }
+            }
+            previous = idx;
+
+
+        }
+        for(size_t ctr(0); ctr < 4; ++ctr) {
+            int32_t pos = previous[ctr];
+            data[pos] += 1;
+            if(data[pos] == 0) {
+                full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
         }
     }
@@ -178,7 +187,7 @@ public:
     void reduce() {
         dump();
         for(auto ctr(0); ctr < XYZ_count; ++ctr) {
-          full_data[ctr] = ceil(full_data[ctr] * 0.99);
+            full_data[ctr] = ceil(full_data[ctr] * 0.99);
         }
     }
 
@@ -292,10 +301,11 @@ private:
     }
 
     void dump() {
-        for(size_t ctr(0); ctr < XY_count; ++ ctr) {
+        for(size_t ctr(0); ctr < XYZ_count; ++ ctr) {
             full_data[ctr] += data[ctr];
-            data[ctr] = 0;
         }
+        std::fill(data, data +XYZ_count, 0);
+
     }
 };
 
