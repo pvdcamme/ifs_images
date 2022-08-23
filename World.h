@@ -14,7 +14,6 @@
 #include "jpeglib.h"
 
 #include <vector>
-#include <numbers>
 #include <limits>
 
 #include <string>
