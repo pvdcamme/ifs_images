@@ -35,6 +35,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <sstream>
 
 #include "World.h"
 #include "FastRandom.h"
@@ -82,6 +83,16 @@ struct Linear {
             e = scale * cos(angle) + distribution(generator);
             f =  distribution(generator);
         }
+    }
+
+    void perturb() {
+        std::normal_distribution<double> distribution(0.0,0.08);
+        a += distribution(generator);
+        b += distribution(generator);
+        c += distribution(generator);
+        d += distribution(generator);
+        e += distribution(generator);
+        f += distribution(generator);
     }
 
     Point move(Point p) const {
@@ -162,6 +173,10 @@ struct TransformGroup {
                             transforms[idx2],
                             transforms[idx3]);
     }
+    void perturb() {
+      size_t idx = random() % transform_count;
+      transforms[idx].perturb();
+    }
 };
 
 
@@ -194,12 +209,12 @@ int main(int argc, char** argv) {
     size_t loop_ctr(0);
     size_t max_runtime= 3600 * 5;
 
+    size_t step_ctr = 0;
     while(time_passed(start_program) < max_runtime) {
-        const size_t internal_loop = 30000000;
-        cout << "Start of a cycle (" << time_passed(start_program) << ") " <<  endl;
+        const size_t internal_loop = 300000000;
+        cout << ++step_ctr << ":: start of a cycle (" << time_passed(start_program) << ") " <<  endl;
         MultiPoint p(0,0);
-        loop_ctr+= p.size() * internal_loop;
-        constexpr auto INNER_CTR = 32;
+        constexpr size_t INNER_CTR = 32;
         MultiPoint saved[INNER_CTR];
 
         for(size_t point_ctr(0); point_ctr < internal_loop; point_ctr += INNER_CTR) {
@@ -209,9 +224,11 @@ int main(int argc, char** argv) {
 
             w.mark<INNER_CTR>(saved);
         }
-    }
+        w.reduce();
 
-    std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
+        loop_ctr+= p.size() * internal_loop;
+        std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
+    }
     w.save(target_name.c_str());
     w.print_stats();
     w.save_to_jpg("test.jpg");
