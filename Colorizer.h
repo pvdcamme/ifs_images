@@ -1,15 +1,8 @@
 #ifndef COLORIZER_H
 #define COLORIZER_H
-#include <cstdint>
-
 #include <complex>
 
-#include <vector>
-#include <limits>
 
-
-
-using std::endl;
 
 using std::complex;
 
