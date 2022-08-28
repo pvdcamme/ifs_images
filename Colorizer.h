@@ -15,15 +15,19 @@ using std::complex;
 
 #
 /**
-  Creates the colors for a single pixel.
+  Blends the colors for a single pixel.
  */
-struct Colorizer {
+class Colorizer {
     complex<float> val;
     size_t colors;
-    Colorizer(size_t _colors);
-    void addColor(size_t ctr, float magnitude);
-    void normalize();
+public:
 
+    Colorizer(size_t num_oolors);
+
+    // Adds colors for the blending.
+    void addColor(size_t color_ctr, float magnitude);
+
+    // Calculates the final Color of the pixel.
     void rgb(float peak, uint8_t& rr, uint8_t& gg, uint8_t& bb);
 };
 #endif

@@ -4,14 +4,16 @@ using std::complex;
 
 Colorizer::Colorizer(size_t _colors):
     val((0,0)), colors(_colors)
-{
-}
+{ }
+
 void Colorizer::addColor(size_t ctr, float magnitude) {
     float phase = (ctr * 3.1415f * 2) / colors;
     val += std::polar(magnitude, phase);
 }
-void Colorizer::normalize() {
-    val /= std::abs(val);
+
+
+static complex<float> normalize(complex<float> val) {
+  return val / std::abs(val);
 }
 
 void Colorizer::rgb(float peak, uint8_t& rr, uint8_t& gg, uint8_t& bb) {
@@ -22,7 +24,7 @@ void Colorizer::rgb(float peak, uint8_t& rr, uint8_t& gg, uint8_t& bb) {
         return;
     }
     float orig_abs = std::abs(val);
-    normalize();
+    val = normalize(val);
     float h = (std::arg(val) + 3.1415) * 6 / (2 * 3.1415);
     float hh = h;
 
