@@ -1,4 +1,4 @@
-OBJS:= iterating_linear.o FastRandom.o
+OBJS:= iterating_linear.o FastRandom.o Colorizer.o
 CPPFLAGS:= -Ofast -march=native -g -flto
 LIBS:= -ljpeg
 TARGET:= ifs
