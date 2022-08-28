@@ -5,18 +5,13 @@
 #include <fstream>
 #include <string>
 #include <immintrin.h>
-#include <cassert>
+#include <vector>
+#include <limits>
 
 #include <cstdint>
 
 #include "Point.h"
-#include <complex>
 #include "jpeglib.h"
-
-#include <vector>
-#include <limits>
-
-#include <string>
 #include "Colorizer.h"
 
 
