@@ -3,10 +3,8 @@
 #include <complex>
 
 
-
 using std::complex;
 
-#
 /**
   Blends the colors for a single pixel.
  */
