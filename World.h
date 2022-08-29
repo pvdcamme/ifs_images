@@ -50,6 +50,7 @@ public:
     template<size_t cnt>
     void mark(MultiPoint* pps)
     {
+        // To delay saving results somewhat.
         __v4si previous = {0, 0, 0, 0};
 
         // Don't care about pixel at (0,0).
@@ -71,29 +72,23 @@ public:
             __v4si offset = pz * int32_t(XY_count);
             __v4si base_idx = (ix + int32_t(size) * iy + offset);
 
-            auto idx = base_idx & good;
+            const auto idx = base_idx & good;
+            /*
             for(size_t ctr(0); ctr < 4; ++ctr)
             {
                 int32_t pos = previous[ctr];
+                const auto max_val = std::numeric_limits<typeof(data[pos])>::max();
+                const auto orig_val = data[pos];
                 data[pos] += 1;
-                if(data[pos] == 0)
+                if(orig_val == max_val)
                 {
-                    full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
+                    full_data[pos] += 1 + uint64_t(std::numeric_limits<typeof(data[pos])>::max());
                 }
-            }
+            }*/
+            increment(previous);
             previous = idx;
-
-
         }
-        for(size_t ctr(0); ctr < 4; ++ctr)
-        {
-            int32_t pos = previous[ctr];
-            data[pos] += 1;
-            if(data[pos] == 0)
-            {
-                full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
-            }
-        }
+        increment(previous);
     }
 
     void mark(MultiPoint p)
@@ -221,6 +216,22 @@ private:
     static constexpr size_t XYZ_count = size *size *height;
     uint8_t* data;
     uint64_t* full_data;
+
+    void increment(__v4si idx) 
+    {
+        for(size_t ctr(0); ctr < 4; ++ctr)
+            {
+                int32_t pos = idx[ctr];
+                const auto max_val = std::numeric_limits<typeof(data[pos])>::max();
+                const auto orig_val = data[pos];
+                data[pos] += 1;
+                if(orig_val == max_val)
+                {
+                    full_data[pos] += 1 + uint64_t(std::numeric_limits<typeof(data[pos])>::max());
+                }
+            }
+    }
+
 
     size_t peak()
     {
