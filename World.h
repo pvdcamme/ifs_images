@@ -31,8 +31,6 @@ using std::endl;
 */
 template<size_t size, size_t height>
 struct World {
-    static constexpr size_t line_vals = 16;
-    static constexpr size_t total_line_size = 4 * 1024;
 public:
     World():
         data(new uint8_t[XYZ_count]),
