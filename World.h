@@ -111,19 +111,6 @@ public:
         }
     }
 
-    void save(std::string name) {
-        std::ofstream out(name.c_str());
-
-        dump();
-        full_data[0] = 0;
-        out << size << std::endl;
-        for(size_t y(0); y < size; ++y) {
-            for(size_t x(0); x < size; ++x) {
-                out << full_data[y * size + x] << ", ";
-            }
-            out << std::endl;
-        }
-    }
     void print_stats() {
         uint64_t total_marks(0);
         uint64_t least_marks(100000000);
