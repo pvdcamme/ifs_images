@@ -73,18 +73,6 @@ public:
             __v4si base_idx = (ix + int32_t(size) * iy + offset);
 
             const auto idx = base_idx & good;
-            /*
-            for(size_t ctr(0); ctr < 4; ++ctr)
-            {
-                int32_t pos = previous[ctr];
-                const auto max_val = std::numeric_limits<typeof(data[pos])>::max();
-                const auto orig_val = data[pos];
-                data[pos] += 1;
-                if(orig_val == max_val)
-                {
-                    full_data[pos] += 1 + uint64_t(std::numeric_limits<typeof(data[pos])>::max());
-                }
-            }*/
             increment(previous);
             previous = idx;
         }
