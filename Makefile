@@ -3,9 +3,8 @@ CPPFLAGS:= -Ofast -march=native -g -flto
 LIBS:= -ljpeg
 TARGET:= ifs
 
-all: clean jos
   
-jos: ${OBJS}
+all: ${OBJS}
 	g++ ${CPPFLAGS} ${OBJS} -o ${TARGET} ${LIBS}
 
 .cpp.o:
