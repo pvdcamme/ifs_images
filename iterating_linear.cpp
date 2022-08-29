@@ -29,6 +29,7 @@
    about. Benchmarking has shown no performance degradation.
 
 */
+#include <random>
 #include <iostream>
 #include <string>
 #include <chrono>

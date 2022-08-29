@@ -1,7 +1,6 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include <random>
 #include <fstream>
 #include <string>
 #include <immintrin.h>
