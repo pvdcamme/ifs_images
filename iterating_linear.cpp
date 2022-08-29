@@ -10,19 +10,6 @@
    The program iterates for a fixed number of
    seconds before saving the image.
 
-   The result of this program is text file with
-   a 2D matrix with counts. This file has the folloing
-   format:
-     line 1: <size>
-     line 2: <first row, <size> values seperated by commas>
-     ..   <size> + 1: last row
-
-   The post_process.py script can process this file to
-   a pretty immage.
-
-   Normally the result file is saved to 'result.txt'. This
-   name can be changed with the first command argument.
-
    @detail.
    Most small values are passed by-value rather then by reference.
    This gives us nice-pure functions that are easy to reason
