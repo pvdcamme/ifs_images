@@ -10,6 +10,9 @@
    The program iterates for a fixed number of
    seconds before saving the image.
 
+   Optionally one can supply the name of the output
+   image.
+
    @detail.
    Most small values are passed by-value rather then by reference.
    This gives us nice-pure functions that are easy to reason
@@ -184,7 +187,7 @@ static void init_rand() {
 int main(int argc, char** argv) {
     init_rand();
     generator.seed(random());
-    std::string target_name("result.txt");
+    std::string target_name("result.jpg");
     if(argc > 1) {
         target_name = argv[1];
     }
@@ -195,7 +198,7 @@ int main(int argc, char** argv) {
 
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
-    size_t max_runtime= 3600 * 5;
+    size_t max_runtime= 5;
 
     size_t step_ctr = 0;
     while(time_passed(start_program) < max_runtime) {
@@ -217,7 +220,6 @@ int main(int argc, char** argv) {
         loop_ctr+= p.size() * internal_loop;
         std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
     }
-    w.save(target_name.c_str());
     w.print_stats();
-    w.save_to_jpg("test.jpg");
+    w.save_to_jpg(target_name.c_str());
 }
