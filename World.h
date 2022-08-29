@@ -30,7 +30,8 @@ using std::endl;
     mapped to the appropriate color.
 */
 template<size_t size, size_t height>
-struct World {
+struct World
+{
 public:
     World():
         data(new uint8_t[XYZ_count]),
@@ -40,19 +41,22 @@ public:
         std::fill(full_data,full_data + XYZ_count, 0);
     }
 
-    ~World() {
+    ~World()
+    {
         delete[] data;
         delete[] full_data;
     }
 
     template<size_t cnt>
-    void mark(MultiPoint* pps) {
+    void mark(MultiPoint* pps)
+    {
         __v4si previous = {0, 0, 0, 0};
 
         // Don't care about pixel at (0,0).
         // Used to dump the invalid coordinates.
         data[0] = 0;
-        for(auto inner(0); inner < cnt; ++inner) {
+        for(auto inner(0); inner < cnt; ++inner)
+        {
             const auto p = pps[inner];
             const auto pz = p.z;
 
@@ -68,10 +72,12 @@ public:
             __v4si base_idx = (ix + int32_t(size) * iy + offset);
 
             auto idx = base_idx & good;
-            for(size_t ctr(0); ctr < 4; ++ctr) {
+            for(size_t ctr(0); ctr < 4; ++ctr)
+            {
                 int32_t pos = previous[ctr];
                 data[pos] += 1;
-                if(data[pos] == 0) {
+                if(data[pos] == 0)
+                {
                     full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
                 }
             }
@@ -79,51 +85,64 @@ public:
 
 
         }
-        for(size_t ctr(0); ctr < 4; ++ctr) {
+        for(size_t ctr(0); ctr < 4; ++ctr)
+        {
             int32_t pos = previous[ctr];
             data[pos] += 1;
-            if(data[pos] == 0) {
+            if(data[pos] == 0)
+            {
                 full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
         }
     }
 
-    void mark(MultiPoint p) {
+    void mark(MultiPoint p)
+    {
         mark<1>(&p);
     }
 
 
-    void mark(struct Point p) {
+    void mark(struct Point p)
+    {
         size_t ix = ((p.x + 1) * 0.5) * size;
         size_t iy = ((p.y + 1) * 0.5) * size;
-        if (ix < size && iy < size && p.z < height) {
+        if (ix < size && iy < size && p.z < height)
+        {
             auto pos = ix + size * iy + XY_count * p.z;
             data[pos] +=+ 1;
-            if(data[pos] == 0) {
+            if(data[pos] == 0)
+            {
                 full_data[pos] += (uint64_t) std::numeric_limits<typeof(data[pos])>::max();
             }
         }
     }
-    void reduce() {
+    void reduce()
+    {
         dump();
-        for(auto ctr(0); ctr < XYZ_count; ++ctr) {
+        for(auto ctr(0); ctr < XYZ_count; ++ctr)
+        {
             full_data[ctr] = ceil(full_data[ctr] * 0.99);
         }
     }
 
-    void print_stats() {
+    void print_stats()
+    {
         uint64_t total_marks(0);
         uint64_t least_marks(100000000);
         uint64_t spread_out = 0;
         dump();
-        for(size_t ctr(0); ctr < XYZ_count; ++ctr) {
+        for(size_t ctr(0); ctr < XYZ_count; ++ctr)
+        {
             total_marks += full_data[ctr];
             least_marks = std::min(least_marks, full_data[ctr]);
         }
 
-        for(size_t ctr(0); ctr < XY_count; ++ctr) {
-            for(size_t h(0); h < height; ++h) {
-                if (full_data[ctr + h * XY_count] > 0) {
+        for(size_t ctr(0); ctr < XY_count; ++ctr)
+        {
+            for(size_t h(0); h < height; ++h)
+            {
+                if (full_data[ctr + h * XY_count] > 0)
+                {
                     spread_out++;
                 }
             }
@@ -135,7 +154,8 @@ public:
         cout << "Least: " << least_marks << endl;
         cout << "Spread: " << float(spread_out) / XY_count << endl;
     }
-    void save_to_jpg(std::string name) {
+    void save_to_jpg(std::string name)
+    {
         struct jpeg_compress_struct cinfo;
         struct jpeg_error_mgr jerr;
         FILE * outfile;
@@ -143,7 +163,8 @@ public:
         constexpr int row_stride = size * 3;
         cinfo.err = jpeg_std_error(&jerr);
         jpeg_create_compress(&cinfo);
-        if ((outfile = fopen(name.c_str(), "wb")) == NULL) {
+        if ((outfile = fopen(name.c_str(), "wb")) == NULL)
+        {
             std::cerr << "Can't open file for writing" << std::endl;
             return;
         }
@@ -160,11 +181,14 @@ public:
 
 
         auto peak_val = peak();
-        for(size_t row_ctr(0); row_ctr < size; ++row_ctr) {
-            for(size_t col_ctr(0); col_ctr < size; ++col_ctr) {
+        for(size_t row_ctr(0); row_ctr < size; ++row_ctr)
+        {
+            for(size_t col_ctr(0); col_ctr < size; ++col_ctr)
+            {
 
                 Colorizer color(height);
-                for(size_t z(0); z < height; ++z) {
+                for(size_t z(0); z < height; ++z)
+                {
                     auto vv = full_data[row_ctr * size + col_ctr + z * XY_count];
                     color.addColor(z,vv);
                 }
@@ -198,17 +222,21 @@ private:
     uint8_t* data;
     uint64_t* full_data;
 
-    size_t peak() {
+    size_t peak()
+    {
         uint64_t peak_marks(0);
-        for(size_t ctr(0); ctr < XYZ_count; ++ctr) {
+        for(size_t ctr(0); ctr < XYZ_count; ++ctr)
+        {
             peak_marks = std::max(peak_marks, full_data[ctr]);
         }
         return peak_marks;
 
     }
 
-    void dump() {
-        for(size_t ctr(0); ctr < XYZ_count; ++ ctr) {
+    void dump()
+    {
+        for(size_t ctr(0); ctr < XYZ_count; ++ ctr)
+        {
             full_data[ctr] += data[ctr];
         }
         std::fill(data, data +XYZ_count, 0);

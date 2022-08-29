@@ -34,7 +34,8 @@
 
 static std::default_random_engine generator;
 
-float normal() {
+float normal()
+{
     double upper = random() / double(RAND_MAX);
     return float(2 * upper - 1);
 }
@@ -43,7 +44,8 @@ float normal() {
  * A linear transform. Initialized with random values.
  * for performance use the vector instructions.
  */
-struct Linear {
+struct Linear
+{
     int32_t id;
     float a,b,c;
     float d,e,f;
@@ -60,7 +62,8 @@ struct Linear {
         e = distribution(generator);
         f = distribution(generator);
 
-        if(normal() < -0.4) {
+        if(normal() < -0.4)
+        {
             std::cout << "Rotatation" << std::endl;
             float angle = normal() * 2 * 3.1415;
             float scale = std::normal_distribution<float>(0.7, 0.1)(generator);
@@ -76,7 +79,8 @@ struct Linear {
         }
     }
 
-    void perturb() {
+    void perturb()
+    {
         std::normal_distribution<double> distribution(0.0,0.08);
         a += distribution(generator);
         b += distribution(generator);
@@ -86,7 +90,8 @@ struct Linear {
         f += distribution(generator);
     }
 
-    Point move(Point p) const {
+    Point move(Point p) const
+    {
         return Point(a* p.x + b * p.y + c,
                      d* p.x + e* p.y + f,
                      id);
@@ -122,12 +127,14 @@ struct Linear {
  only for small exponents.
 */
 template<size_t exp>
-size_t pow(size_t val) {
+size_t pow(size_t val)
+{
     return val * pow<exp -1>(val);
 }
 
 template<>
-size_t pow<0>(size_t val) {
+size_t pow<0>(size_t val)
+{
     return 1;
 }
 
@@ -136,22 +143,27 @@ size_t pow<0>(size_t val) {
   * Makes it easy to pick a random one each time.
   */
 template<size_t transform_count>
-struct TransformGroup {
+struct TransformGroup
+{
     FastRandom rr;
     Linear transforms[transform_count];
 
-    TransformGroup() : rr(random()) {
-        for(auto ctr(0); ctr < transform_count; ++ctr) {
+    TransformGroup() : rr(random())
+    {
+        for(auto ctr(0); ctr < transform_count; ++ctr)
+        {
             transforms[ctr].id =ctr;
         }
     }
 
-    Point move(Point p) {
+    Point move(Point p)
+    {
         size_t idx = rr.random() % transform_count;
         return transforms[idx].move(p);
     }
 
-    MultiPoint move(MultiPoint& p) {
+    MultiPoint move(MultiPoint& p)
+    {
         uint64_t idxs = rr.random();
         size_t idx0 = (idxs /pow<0>(transform_count)) % transform_count;
         size_t idx1 = (idxs /pow<1>(transform_count)) % transform_count;
@@ -164,31 +176,36 @@ struct TransformGroup {
                             transforms[idx2],
                             transforms[idx3]);
     }
-    void perturb() {
-      size_t idx = random() % transform_count;
-      transforms[idx].perturb();
+    void perturb()
+    {
+        size_t idx = random() % transform_count;
+        transforms[idx].perturb();
     }
 };
 
 
 template<typename clock>
-double time_passed(std::chrono::time_point<clock> start) {
+double time_passed(std::chrono::time_point<clock> start)
+{
     auto now = clock::now();
     std::chrono::duration<double> elapsed = now - start;
     return elapsed.count();
 }
 
-static void init_rand() {
+static void init_rand()
+{
     auto now = std::chrono::steady_clock::now();
     auto some_val = now.time_since_epoch().count();
     srand(some_val);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     init_rand();
     generator.seed(random());
     std::string target_name("result.jpg");
-    if(argc > 1) {
+    if(argc > 1)
+    {
         target_name = argv[1];
     }
 
@@ -201,15 +218,18 @@ int main(int argc, char** argv) {
     size_t max_runtime= 5;
 
     size_t step_ctr = 0;
-    while(time_passed(start_program) < max_runtime) {
+    while(time_passed(start_program) < max_runtime)
+    {
         const size_t internal_loop = 300000000;
         cout << ++step_ctr << ":: start of a cycle (" << time_passed(start_program) << ") " <<  endl;
         MultiPoint p(0,0);
         constexpr size_t INNER_CTR = 32;
         MultiPoint saved[INNER_CTR];
 
-        for(size_t point_ctr(0); point_ctr < internal_loop; point_ctr += INNER_CTR) {
-            for(auto inner(0); inner < INNER_CTR; ++inner) {
+        for(size_t point_ctr(0); point_ctr < internal_loop; point_ctr += INNER_CTR)
+        {
+            for(auto inner(0); inner < INNER_CTR; ++inner)
+            {
                 saved[inner] = p = transforms.move(p);
             }
 

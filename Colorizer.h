@@ -8,7 +8,8 @@ using std::complex;
 /**
   Blends the colors for a single pixel.
  */
-class Colorizer {
+class Colorizer
+{
     complex<float> val;
     size_t colors;
 public:
