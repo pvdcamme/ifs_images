@@ -67,7 +67,7 @@ public:
             __v4si ix = __builtin_ia32_cvtps2dq(res_x);
             __v4si iy = __builtin_ia32_cvtps2dq(res_y);
 
-            __v4si good = (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size)) & (pz < int32_t(height));
+            __v4si good = (pz < int32_t(height)) & (0 <= ix) & (ix < int32_t(size)) & (0 <= iy) & (iy < int32_t(size));
 
             __v4si offset = pz * int32_t(XY_count);
             __v4si base_idx = (ix + int32_t(size) * iy + offset);
@@ -207,17 +207,17 @@ private:
 
     void increment(__v4si idx) 
     {
+        const auto max_val = std::numeric_limits<typeof(data[0])>::max();
         for(size_t ctr(0); ctr < 4; ++ctr)
+        {
+            int32_t pos = idx[ctr];
+            const auto orig_val = data[pos];
+            data[pos] += 1;
+            if(orig_val == max_val)
             {
-                int32_t pos = idx[ctr];
-                const auto max_val = std::numeric_limits<typeof(data[pos])>::max();
-                const auto orig_val = data[pos];
-                data[pos] += 1;
-                if(orig_val == max_val)
-                {
-                    full_data[pos] += 1 + uint64_t(std::numeric_limits<typeof(data[pos])>::max());
-                }
+                full_data[pos] += 1 + uint64_t(max_val);
             }
+        }
     }
 
 
