@@ -215,12 +215,12 @@ int main(int argc, char** argv)
 
     auto start_program= std::chrono::steady_clock::now();
     size_t loop_ctr(0);
-    size_t max_runtime= 5;
+    size_t max_runtime= 3600;
 
     size_t step_ctr = 0;
     while(time_passed(start_program) < max_runtime)
     {
-        const size_t internal_loop = 300000000;
+        const size_t internal_loop = 600000000;
         cout << ++step_ctr << ":: start of a cycle (" << time_passed(start_program) << ") " <<  endl;
         MultiPoint p(0,0);
         constexpr size_t INNER_CTR = 32;
@@ -235,11 +235,11 @@ int main(int argc, char** argv)
 
             w.mark<INNER_CTR>(saved);
         }
-        w.reduce();
 
         loop_ctr+= p.size() * internal_loop;
         std::cout << (loop_ctr / time_passed(start_program)) << " loops/sec " <<std::endl;
+
+        w.print_stats();
+        w.save_to_jpg(target_name.c_str());
     }
-    w.print_stats();
-    w.save_to_jpg(target_name.c_str());
 }
