@@ -6,6 +6,7 @@ The decent excercise and somewhat fun to program. The result
 tend to be fairly psychedlic (and have very little use).
 ![example_image](examples/example_1.jpg)
 
+= Building and Running the program
 
 This code depends on 
 * libjpeg for the images
